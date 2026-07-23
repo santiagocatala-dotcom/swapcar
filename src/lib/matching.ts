@@ -81,18 +81,28 @@ export async function getCandidates(
   const swipedIds: string[] = (swipedRows ?? []).map((r) => r.target_user_id);
 
   // Step 2: Get the current user's info (needed for compatibility calc)
-  const { data: currentUserRaw, error: meError } = await supabase
+  const { data: userDataRaw, error: meError } = await supabase
     .from('users')
-    .select('*, vehicle:vehicles(*), preferences:preferences(*)')
+    .select('*')
     .eq('id', userId)
     .single();
 
-  if (meError || !currentUserRaw) {
+  if (meError || !userDataRaw) {
     console.error('[getCandidates] Error fetching current user:', meError);
     throw new Error(`Failed to fetch current user: ${meError?.message}`);
   }
 
-  const currentUser = buildUserWithVehicle(currentUserRaw as Record<string, unknown>);
+  // Fetch vehicle and preferences separately (avoids 406 on join queries)
+  const { data: myVehicle } = await supabase
+    .from('vehicles').select('*').eq('user_id', userId).maybeSingle();
+  const { data: myPrefs } = await supabase
+    .from('preferences').select('*').eq('user_id', userId).maybeSingle();
+
+  const currentUser: UserWithVehicle = {
+    ...(userDataRaw as unknown as User),
+    vehicle: (myVehicle as unknown as Vehicle) || {} as Vehicle,
+    preferences: (myPrefs as unknown as Preferences) || {} as Preferences,
+  };
 
   // Step 3: Fetch potential candidates
   // Exclude self + already-swiped users; require vehicle & preferences to exist.
