@@ -24,6 +24,8 @@ export default function LoginPage() {
       password,
     });
 
+    console.log('[SwapCar Login] signIn result:', signInError ? `error: ${signInError.message}` : 'success');
+
     if (signInError) {
       setError(signInError.message === 'Invalid login credentials'
         ? 'Email o contraseña incorrectos'

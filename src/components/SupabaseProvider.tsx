@@ -64,6 +64,7 @@ export default function SupabaseProvider({ children }: { children: ReactNode }) 
 
     const getInitialSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
+      console.log('[SwapCar Auth] getSession:', session ? `found user ${session.user.email}` : 'no session');
       if (mounted) {
         setUser(session?.user ?? null);
         setLoading(false);
