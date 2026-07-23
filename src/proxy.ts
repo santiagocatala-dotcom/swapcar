@@ -26,38 +26,28 @@ export async function proxy(request: NextRequest) {
     }
   );
 
+  // Use getSession() for middleware (faster, no network call)
+  // This avoids redirect loops when getUser() fails due to cold starts
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    data: { session },
+  } = await supabase.auth.getSession();
+  const user = session?.user ?? null;
 
   const { pathname } = request.nextUrl;
 
-  // Public routes that don't need auth
+  // Public routes
   const publicRoutes = ['/auth/login', '/auth/signup', '/auth/callback'];
   const isPublicRoute = publicRoutes.some((route) => pathname.startsWith(route));
 
-  // If not authenticated and trying to access protected route
-  if (!user && !isPublicRoute && pathname !== '/') {
+  // Protect routes
+  if (!user && !isPublicRoute && pathname !== '/' && !pathname.startsWith('/api/')) {
     const url = request.nextUrl.clone();
     url.pathname = '/auth/login';
     return NextResponse.redirect(url);
   }
 
-  // If authenticated and trying to access auth pages
+  // Redirect authenticated users away from auth pages
   if (user && isPublicRoute) {
-    // Check if user has vehicle and preferences (onboarding check)
-    const { data: vehicle } = await supabase
-      .from('vehicles')
-      .select('id')
-      .eq('user_id', user.id)
-      .single();
-
-    if (!vehicle && pathname !== '/onboarding/vehicle') {
-      const url = request.nextUrl.clone();
-      url.pathname = '/onboarding/vehicle';
-      return NextResponse.redirect(url);
-    }
-
     const url = request.nextUrl.clone();
     url.pathname = '/swipe';
     return NextResponse.redirect(url);
