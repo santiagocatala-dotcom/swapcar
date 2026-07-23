@@ -13,11 +13,10 @@ const SITE_URL = 'https://swapcar-vviu.vercel.app';
 
 export const metadata: Metadata = {
   title: 'SwapCar - Intercambio de Vehículos',
-  description:
-    'Intercambiá tu vehículo de forma fácil y segura. Creá tu perfil, subí tu auto o moto, y encontrá el intercambio perfecto.',
+  description: 'App para intercambiar vehículos.',
   openGraph: {
-    title: 'SwapCar - Intercambio de Vehículos',
-    description: 'Intercambiá tu vehículo de forma fácil y segura. Creá tu perfil, subí tu auto o moto, y encontrá el intercambio perfecto.',
+    title: 'SwapCar',
+    description: 'App para intercambiar vehículos.',
     url: SITE_URL,
     siteName: 'SwapCar',
     images: [{ url: `${SITE_URL}/og-image.svg`, width: 1200, height: 630 }],
@@ -27,7 +26,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'SwapCar - Intercambio de Vehículos',
-    description: 'Intercambiá tu vehículo de forma fácil y segura.',
+    description: 'App para intercambiar vehículos.',
     images: [`${SITE_URL}/og-image.svg`],
   },
 };
