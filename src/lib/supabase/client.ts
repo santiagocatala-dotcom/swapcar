@@ -120,6 +120,12 @@ const db = {
       const d = await r.json();
       if (d.user) {
         store(d);
+        // Create profile if doesn't exist (handles existing auth users without public.users row)
+        await post(`users`, {
+          id: d.user.id,
+          email: d.user.email,
+          name: d.user.user_metadata?.name || d.user.email?.split('@')[0] || 'Usuario',
+        }, 'resolution=merge-duplicates');
       }
       return { data: { user: d.user }, error: d.error_description ? { message: d.error_description } : null };
     },
