@@ -110,28 +110,49 @@ export default function OnboardingVehiclePage() {
     setLoading(true);
 
     try {
-      // Upload photos via secure API route (server validates MIME, size, ownership)
+      // Upload photos with validation + compression
       const uploadedUrls: string[] = [];
-      if (photos.length > 0) {
-        setUploadProgress(0);
-        const formData = new FormData();
-        for (const photo of photos) {
-          formData.append('photos', photo);
+      for (const photo of photos) {
+        const valError = validateImageFile(photo);
+        if (valError) {
+          setError(valError);
+          setLoading(false);
+          return;
         }
 
-        const res = await fetch('/api/upload', {
-          method: 'POST',
-          body: formData,
-        });
-
-        const result = await res.json();
-
-        if (!res.ok) {
-          throw new Error(result.error || 'Error al subir fotos');
+        // Compress antes de subir
+        let fileToUpload = photo;
+        try {
+          const compressedBlob = await compressImage(photo);
+          fileToUpload = new File([compressedBlob], photo.name.replace(/\.[^.]+$/, '.webp'), { type: 'image/webp' });
+        } catch {
+          // fallback a original si falla compresión
         }
 
-        uploadedUrls.push(...result.urls);
-        setUploadProgress(100);
+        // Generar nombre seguro
+        const ext = fileToUpload.name.split('.').pop();
+        const fileName = `${user.id}/${Date.now()}-${crypto.randomUUID().slice(0, 8)}.${ext}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('vehicle-photos')
+          .upload(fileName, fileToUpload, {
+            contentType: fileToUpload.type,
+            cacheControl: 'public, max-age=31536000',
+            upsert: false,
+          });
+
+        if (uploadError) {
+          console.error('Upload error:', uploadError);
+          setError(`Error al subir "${photo.name}".`);
+          setLoading(false);
+          return;
+        }
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('vehicle-photos')
+          .getPublicUrl(fileName);
+
+        uploadedUrls.push(publicUrl);
       }
 
       // Insert vehicle
