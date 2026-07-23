@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Flame, MessageCircle, User, Compass, Sun, Moon } from 'lucide-react';
+import { Flame, User, Compass, Sun, Moon } from 'lucide-react';
 import { useSupabase } from './SupabaseProvider';
 
 const navItems = [
@@ -24,8 +24,8 @@ export function BottomNav() {
   }
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-lg border-t border-gray-100 dark:bg-[rgba(15,15,35,0.9)] dark:border-gray-700 pb-safe">
-      <div className="max-w-2xl mx-auto flex items-center justify-around h-14 sm:h-16">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-lg border-t border-gray-100 dark:bg-[rgba(15,15,35,0.9)] dark:border-gray-700">
+      <div className="max-w-lg mx-auto flex items-center justify-around h-16">
         {navItems.map((item) => {
           const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
           const Icon = item.icon;
@@ -41,7 +41,6 @@ export function BottomNav() {
             >
               <Icon
                 size={22}
-                className={isActive ? 'fill-current' : ''}
                 strokeWidth={isActive ? 2.5 : 1.5}
               />
               <span className="text-[10px] font-medium">{item.label}</span>
@@ -52,14 +51,8 @@ export function BottomNav() {
           onClick={toggleTheme}
           className="flex flex-col items-center gap-0.5 px-6 py-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
         >
-          {theme === 'dark' ? (
-            <Sun size={22} strokeWidth={1.5} />
-          ) : (
-            <Moon size={22} strokeWidth={1.5} />
-          )}
-          <span className="text-[10px] font-medium">
-            {theme === 'dark' ? 'Claro' : 'Oscuro'}
-          </span>
+          {theme === 'dark' ? <Sun size={22} strokeWidth={1.5} /> : <Moon size={22} strokeWidth={1.5} />}
+          <span className="text-[10px] font-medium">{theme === 'dark' ? 'Claro' : 'Oscuro'}</span>
         </button>
       </div>
     </nav>

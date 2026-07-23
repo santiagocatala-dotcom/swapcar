@@ -93,8 +93,8 @@ export default function ChatPage({
           table: 'messages',
           filter: `match_id=eq.${id}`,
         },
-        (payload) => {
-          const newMsg = payload.new as Message;
+        (payload: { new: Record<string, unknown> }) => {
+          const newMsg = payload.new as unknown as Message;
           setMessages((prev) => {
             // Avoid duplicates
             if (prev.some((m) => m.id === newMsg.id)) return prev;
