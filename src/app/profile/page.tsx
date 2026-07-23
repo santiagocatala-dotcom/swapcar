@@ -39,18 +39,25 @@ export default function ProfilePage() {
   const [preferences, setPreferences] = useState<Preferences | null>(null);
   const [stats, setStats] = useState<UserStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState<string | null>(null);
   const fetchedRef = useRef(false);
 
   const fetchData = useCallback(async () => {
     if (!user) return;
     setLoading(true);
+    setFetchError(null);
     try {
       // Profile data
-      const { data: userData } = await supabase
+      const { data: userData, error: userErr } = await supabase
         .from('users')
         .select('*')
         .eq('id', user.id)
         .single();
+
+      if (userErr && userErr.code !== 'PGRST116') {
+        console.error('Profile fetch error:', userErr);
+        setFetchError(userErr.message || 'Error al cargar perfil');
+      }
 
       if (userData) {
         setProfile({
@@ -60,6 +67,10 @@ export default function ProfilePage() {
           province: userData.province,
           last_seen: userData.last_seen,
         });
+      } else {
+        // No profile found → redirect to onboarding
+        router.replace('/onboarding');
+        return;
       }
 
       // Vehicle
@@ -85,10 +96,11 @@ export default function ProfilePage() {
       setStats(userStats);
     } catch (err) {
       console.error('Error fetching profile:', err);
+      setFetchError('Error de conexión');
     } finally {
       setLoading(false);
     }
-  }, [user, supabase]);
+  }, [user, supabase, router]);
 
   useEffect(() => {
     if (authLoading) return;
@@ -113,6 +125,22 @@ export default function ProfilePage() {
         <div className="text-center">
           <Loader2 className="w-8 h-8 animate-spin text-black mx-auto mb-3" />
           <p className="text-sm text-gray-400">Cargando perfil...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (fetchError) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center max-w-xs">
+          <p className="text-red-500 text-sm mb-4">{fetchError}</p>
+          <button
+            onClick={() => { fetchedRef.current = false; fetchData(); }}
+            className="text-sm text-blue-500 underline"
+          >
+            Reintentar
+          </button>
         </div>
       </div>
     );

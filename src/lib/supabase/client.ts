@@ -9,8 +9,22 @@ export function createClient(): any {
   const KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
   const STORAGE_KEY = 'sb-swapcar-auth';
 
-  function headers(extra: Record<string, string> = {}): Record<string, string> {
-    return { 'apikey': KEY, 'Authorization': `Bearer ${KEY}`, 'Accept': 'application/json', ...extra };
+  function getToken(): string | null {
+    try {
+      const s = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
+      return s?.access_token || null;
+    } catch { return null; }
+  }
+
+  function authHeaders(extra: Record<string, string> = {}): Record<string, string> {
+    const token = getToken();
+    const h: Record<string, string> = { 'apikey': KEY, 'Accept': 'application/json', ...extra };
+    if (token) {
+      h['Authorization'] = `Bearer ${token}`;
+    } else {
+      h['Authorization'] = `Bearer ${KEY}`;
+    }
+    return h;
   }
 
   function store(u: any) {
@@ -22,18 +36,19 @@ export function createClient(): any {
   function clearStore() { localStorage.removeItem(STORAGE_KEY); }
 
   async function apiGet(path: string) {
-    const r = await fetch(`${URL}/rest/v1/${path}`, { headers: headers() });
+    const h = authHeaders();
+    const r = await fetch(`${URL}/rest/v1/${path}`, { headers: h });
     if (!r.ok) { console.error(`[API] ${r.status}: ${path.substring(0,80)}`); return []; }
     const t = await r.text();
     try { return JSON.parse(t); } catch { return []; }
   }
 
   async function apiPost(path: string, body: any, prefer = '') {
-    const h = headers({ 'Content-Type': 'application/json' });
+    const h = authHeaders({ 'Content-Type': 'application/json' });
     if (prefer) h['Prefer'] = prefer;
     const r = await fetch(`${URL}/rest/v1/${path}`, { method: 'POST', headers: h, body: JSON.stringify(body) });
     const text = await r.text();
-    try { return { data: text ? JSON.parse(text) : null, error: r.ok ? null : { message: `${r.status}` } }; }
+    try { return { data: text ? JSON.parse(text) : null, error: r.ok ? null : { message: `${r.status}: ${text.substring(0,100)}` } }; }
     catch { return { data: null, error: r.ok ? null : { message: `${r.status}` } }; }
   }
 
@@ -55,12 +70,13 @@ export function createClient(): any {
     q.upsert = (body: any) => ({ then: async (resolve: (v: any) => any) => resolve(await apiPost(table, body, 'resolution=merge-duplicates')) });
     q.insert = (body: any) => ({ then: async (resolve: (v: any) => any) => resolve(await apiPost(table, body)) });
     q.update = (body: any) => ({ eq: (c: string, v: any) => ({ then: async (resolve: (v: any) => any) => {
-      const h = headers({'Content-Type':'application/json','Prefer':'return=representation'});
+      const h = authHeaders({'Content-Type':'application/json','Prefer':'return=representation'});
       const r = await fetch(`${URL}/rest/v1/${table}?${c}=eq.${v}`, { method:'PATCH', headers:h, body: JSON.stringify(body) });
       const t = await r.text(); resolve({data:t?JSON.parse(t):null,error:r.ok?null:{message:`${r.status}`}});
     }}) });
     q.delete = () => ({ eq: (c: string, v: any) => ({ then: async (resolve: (v: any) => any) => {
-      const r = await fetch(`${URL}/rest/v1/${table}?${c}=eq.${v}`, { method:'DELETE', headers:headers() });
+      const h = authHeaders();
+      const r = await fetch(`${URL}/rest/v1/${table}?${c}=eq.${v}`, { method:'DELETE', headers:h });
       resolve({error:r.ok?null:{message:`${r.status}`}});
     }}) });
     return q;
@@ -73,7 +89,6 @@ export function createClient(): any {
       getUser: async () => ({ data: { user: restore()?.user || null }, error: null }),
       onAuthStateChange: (cb: (e: string, s: any) => void) => {
         const s = restore();
-        // Only fire once, not on every render
         if (s) setTimeout(() => cb('INITIAL', s), 0);
         return { data: { subscription: { unsubscribe: () => {} } } };
       },
@@ -97,7 +112,12 @@ export function createClient(): any {
     },
     storage: {
       from: (b: string) => ({
-        upload: async (path: string, file: File) => { const fd = new FormData(); fd.append('file',file); const r = await fetch(`${URL}/storage/v1/object/${b}/${path}`,{method:'POST',headers:{'apikey':KEY,'Authorization':`Bearer ${KEY}`},body:fd}); const d=await r.json(); return {data:d,error:r.ok?null:{message:d?.error||'Upload failed'}}; },
+        upload: async (path: string, file: File) => {
+          const h = authHeaders();
+          const fd = new FormData(); fd.append('file',file);
+          const r = await fetch(`${URL}/storage/v1/object/${b}/${path}`,{method:'POST',headers:h,body:fd});
+          const d=await r.json(); return {data:d,error:r.ok?null:{message:d?.error||'Upload failed'}};
+        },
         getPublicUrl: (path: string) => ({ data: { publicUrl: `${URL}/storage/v1/object/public/${b}/${path}` } }),
       }),
     },
