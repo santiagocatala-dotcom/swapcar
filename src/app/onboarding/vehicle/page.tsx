@@ -64,9 +64,14 @@ export default function OnboardingVehiclePage() {
       // Upload photos via API route (server-side validation + compression)
       let uploadedUrls: string[] = [];
       if (photos.length > 0) {
+        const { data: { session } } = await supabase.auth.getSession();
         const formData = new FormData();
         photos.forEach((photo) => formData.append('photos', photo));
-        const res = await fetch('/api/upload', { method: 'POST', body: formData });
+        const res = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData,
+          headers: { 'Authorization': `Bearer ${session?.access_token || ''}` },
+        });
         const result = await res.json();
         if (result.success) {
           uploadedUrls = result.urls;

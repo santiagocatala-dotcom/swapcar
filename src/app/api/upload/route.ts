@@ -5,7 +5,7 @@
 // ============================================================
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 import { IMAGE_CONFIG, validateImageFile } from '@/lib/image-security';
 import { checkRateLimit, RATE_LIMITS } from '@/lib/rate-limit';
 
@@ -13,19 +13,38 @@ export const runtime = 'nodejs';
 export const maxDuration = 30;
 
 export async function POST(request: NextRequest) {
-  const supabase = await createServerSupabaseClient();
+  // Read auth token from request header (sent by client)
+  const authHeader = request.headers.get('authorization') || '';
+  const token = authHeader.replace('Bearer ', '').trim();
 
-  // 1. Verify authentication
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
-  if (authError || !user) {
-    return NextResponse.json(
-      { error: 'No autenticado' },
-      { status: 401 }
-    );
+  if (!token) {
+    return NextResponse.json({ error: 'No autenticado' }, { status: 401 });
   }
 
+  // Verify token via admin client
+  const supabaseAdmin = createSupabaseClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { auth: { autoRefreshToken: false, persistSession: false } }
+  );
+
+  const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(token);
+  if (authError || !user) {
+    return NextResponse.json({ error: 'Token inválido' }, { status: 401 });
+  }
+
+  // Create user-authenticated client for DB/storage operations
+  const supabase = createSupabaseClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      auth: { autoRefreshToken: false, persistSession: false },
+      global: { headers: { 'Authorization': `Bearer ${token}` } },
+    }
+  );
+
   // Rate limit check
-  const rateResult = await checkRateLimit(supabase, user.id, null, 'PHOTO_UPLOAD');
+  const rateResult = await checkRateLimit(supabaseAdmin, user.id, null, 'PHOTO_UPLOAD');
   if (!rateResult.allowed) {
     return NextResponse.json(
       { error: rateResult.message || 'Demasiadas subidas. Esperá unos minutos.' },
@@ -33,21 +52,18 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // 2. Parse multipart form
+  // Parse multipart form
   let formData: FormData;
   try {
     formData = await request.formData();
   } catch {
-    return NextResponse.json(
-      { error: 'Formato inválido' },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: 'Formato inválido' }, { status: 400 });
   }
 
   const files = formData.getAll('photos') as File[];
   const vehicleId = formData.get('vehicle_id') as string | null;
 
-  // 3. Validate vehicle_id if provided (ensure ownership)
+  // Validate vehicle_id if provided (ensure ownership)
   if (vehicleId) {
     const { data: vehicle, error: vehError } = await supabase
       .from('vehicles')
@@ -64,7 +80,7 @@ export async function POST(request: NextRequest) {
     }
   }
 
-  // 4. Check total photos per vehicle limit
+  // Check total photos per vehicle limit
   if (vehicleId) {
     const { data: currentVehicle } = await supabase
       .from('vehicles')
@@ -80,11 +96,10 @@ export async function POST(request: NextRequest) {
     }
   }
 
-  // 5. Validate each file
+  // Validate each file
   const uploadedUrls: string[] = [];
 
   for (const file of files) {
-    // Basic validation
     const validationError = validateImageFile({
       name: file.name,
       type: file.type,
@@ -95,17 +110,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: `Archivo "${file.name}": ${validationError}` }, { status: 400 });
     }
 
-    // 6. Read and validate actual content header (beyond extension)
+    // Read and validate actual content header (magic bytes)
     const buffer = Buffer.from(await file.arrayBuffer());
     const header = buffer.slice(0, 12).toString('hex');
 
-    // JPEG: ffd8ff
-    // PNG: 89504e47
-    // WebP: 52494646...57454250
     const isValidContent =
-      header.startsWith('ffd8ff') ||           // JPEG
-      header.startsWith('89504e47') ||          // PNG
-      (header.includes('57454250') && header.startsWith('52494646')); // WebP (RIFF...WEBP)
+      header.startsWith('ffd8ff') ||
+      header.startsWith('89504e47') ||
+      (header.includes('57454250') && header.startsWith('52494646'));
 
     if (!isValidContent) {
       return NextResponse.json({
@@ -113,11 +125,11 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
-    // 7. Generate secure filename with random UUID
+    // Generate secure filename
     const { generateSecureFilename } = await import('@/lib/image-security');
     const securePath = generateSecureFilename(user.id, file.name);
 
-    // 8. Upload to Supabase Storage
+    // Upload to Supabase Storage
     const { data: uploadData, error: uploadError } = await supabase.storage
       .from('vehicle-photos')
       .upload(securePath, buffer, {
@@ -128,7 +140,6 @@ export async function POST(request: NextRequest) {
 
     if (uploadError) {
       console.error('[upload] Error uploading:', uploadError.message);
-      // Clean up already uploaded files
       for (const url of uploadedUrls) {
         const path = url.split('/').pop();
         if (path) {
@@ -141,7 +152,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 9. Get public URL
     const { data: { publicUrl } } = supabase.storage
       .from('vehicle-photos')
       .getPublicUrl(securePath);
