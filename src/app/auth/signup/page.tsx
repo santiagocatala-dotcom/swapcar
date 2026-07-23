@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
+import { checkRateLimit, RATE_LIMITS } from '@/lib/rate-limit';
 import { Car, Loader2, Mail, Lock, UserIcon, ArrowLeft } from 'lucide-react';
 
 export default function SignupPage() {
@@ -26,6 +27,14 @@ export default function SignupPage() {
 
     setLoading(true);
 
+    // Rate limit check
+    const { allowed, message } = await checkRateLimit(supabase, null, null, 'SIGNUP');
+    if (!allowed) {
+      setError(message || 'Demasiados registros. Esperá unos minutos.');
+      setLoading(false);
+      return;
+    }
+
     const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
       email,
       password,
@@ -46,7 +55,7 @@ export default function SignupPage() {
 
     // Create user profile using signUpData.user.id (NO getUser() — returns null if email confirmation ON)
     if (signUpData?.user) {
-      await supabase.from('users').upsert({
+      await (supabase.from('users') as any).upsert({
         id: signUpData.user.id,
         email: signUpData.user.email,
         name,

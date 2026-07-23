@@ -7,6 +7,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { IMAGE_CONFIG, validateImageFile } from '@/lib/image-security';
+import { checkRateLimit, RATE_LIMITS } from '@/lib/rate-limit';
 
 export const runtime = 'nodejs';
 export const maxDuration = 30;
@@ -20,6 +21,15 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       { error: 'No autenticado' },
       { status: 401 }
+    );
+  }
+
+  // Rate limit check
+  const rateResult = await checkRateLimit(supabase, user.id, null, 'PHOTO_UPLOAD');
+  if (!rateResult.allowed) {
+    return NextResponse.json(
+      { error: rateResult.message || 'Demasiadas subidas. Esperá unos minutos.' },
+      { status: 429 }
     );
   }
 

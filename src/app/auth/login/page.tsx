@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
+import { checkRateLimit, RATE_LIMITS } from '@/lib/rate-limit';
 import { Car, Loader2, Mail, Lock, ArrowLeft } from 'lucide-react';
 
 export default function LoginPage() {
@@ -18,6 +19,14 @@ export default function LoginPage() {
     e.preventDefault();
     setError('');
     setLoading(true);
+
+    // Rate limit check
+    const { allowed, message } = await checkRateLimit(supabase, null, null, 'LOGIN');
+    if (!allowed) {
+      setError(message || 'Demasiados intentos. Esperá unos minutos.');
+      setLoading(false);
+      return;
+    }
 
     const { error: signInError } = await supabase.auth.signInWithPassword({
       email,

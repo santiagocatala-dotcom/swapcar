@@ -118,7 +118,7 @@ export default function ChatPage({
     if (!content.trim() || !user || sending) return;
     setSending(true);
     try {
-      await supabase.from('messages').insert({
+      await (supabase.from('messages') as any).insert({
         match_id: id,
         sender_id: user.id,
         content: content.trim(),
@@ -138,7 +138,7 @@ export default function ChatPage({
 
   const sharePhone = async () => {
     if (!user) return;
-    await supabase.from('messages').insert({
+   await (supabase.from('messages') as any).insert({
       match_id: id,
       sender_id: user.id,
       content: null,
@@ -148,7 +148,7 @@ export default function ChatPage({
 
   const shareWhatsApp = async () => {
     if (!user) return;
-    await supabase.from('messages').insert({
+   await (supabase.from('messages') as any).insert({
       match_id: id,
       sender_id: user.id,
       content: null,
@@ -160,7 +160,7 @@ export default function ChatPage({
     if (!navigator.geolocation) return;
     navigator.geolocation.getCurrentPosition(async (pos) => {
       const { latitude, longitude } = pos.coords;
-      await supabase.from('messages').insert({
+     await (supabase.from('messages') as any).insert({
         match_id: id,
         sender_id: user!.id,
         content: null,

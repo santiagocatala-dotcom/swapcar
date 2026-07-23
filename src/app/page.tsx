@@ -123,6 +123,10 @@ export default function HomePage() {
       {/* Footer */}
       <footer className="py-6 px-6 text-center text-sm text-text-muted border-t border-border">
         <p>&copy; {new Date().getFullYear()} SwapCar. Todos los derechos reservados.</p>
+        <div className="flex justify-center gap-4 mt-2">
+          <Link href="/terms" className="hover:text-text transition-colors">Términos</Link>
+          <Link href="/privacy" className="hover:text-text transition-colors">Privacidad</Link>
+        </div>
       </footer>
     </div>
   );

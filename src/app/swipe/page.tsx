@@ -6,6 +6,7 @@ import { motion, useMotionValue, useTransform, AnimatePresence } from 'framer-mo
 import { createClient } from '@/lib/supabase/client';
 import { useSupabase } from '@/components/SupabaseProvider';
 import { getCandidates, checkAndCreateMatch } from '@/lib/matching';
+import { checkRateLimit, RATE_LIMITS } from '@/lib/rate-limit';
 import type { SwipeCandidate } from '@/lib/types';
 import { BottomNav } from '@/components/bottom-nav';
 import {
@@ -79,7 +80,7 @@ export default function SwipePage() {
     direction: 'like' | 'dislike' | 'favorite',
     targetUserId: string
   ) => {
-    await supabase.from('swipes').insert({
+    await (supabase.from('swipes') as any).insert({
       swiper_id: user!.id,
       target_user_id: targetUserId,
       direction,
@@ -89,6 +90,14 @@ export default function SwipePage() {
   const handleSwipe = async (direction: 'like' | 'dislike' | 'favorite') => {
     if (!currentCandidate || actionLoading) return;
     setActionLoading(true);
+
+    // Rate limit check
+    const { allowed, message } = await checkRateLimit(supabase, user!.id, null, 'SWIPE');
+    if (!allowed) {
+      setActionLoading(false);
+      console.warn('[swipe] Rate limited:', message);
+      return;
+    }
 
     const targetUserId = currentCandidate.user.id;
 

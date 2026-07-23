@@ -1,14 +1,22 @@
 'use client';
 
-import { createBrowserClient } from '@supabase/ssr';
+import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 
-let instance: ReturnType<typeof createBrowserClient> | null = null;
+let instance: any = null;
 
-export function createClient() {
+export function createClient(): any {
   if (instance) return instance;
-  instance = createBrowserClient(
+  instance = createSupabaseClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      auth: {
+        autoRefreshToken: true,
+        persistSession: true,
+        storageKey: 'sb-swapcar-auth',
+        storage: typeof window !== 'undefined' ? window.localStorage : undefined,
+      },
+    }
   );
   return instance;
 }
