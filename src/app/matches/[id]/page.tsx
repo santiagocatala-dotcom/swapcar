@@ -93,8 +93,8 @@ export default function ChatPage({
           table: 'messages',
           filter: `match_id=eq.${id}`,
         },
-        (payload: { new: Record<string, unknown> }) => {
-          const newMsg = payload.new as unknown as Message;
+        (payload) => {
+          const newMsg = payload.new as Message;
           setMessages((prev) => {
             // Avoid duplicates
             if (prev.some((m) => m.id === newMsg.id)) return prev;
@@ -118,7 +118,7 @@ export default function ChatPage({
     if (!content.trim() || !user || sending) return;
     setSending(true);
     try {
-      await (supabase.from('messages') as any).insert({
+      await supabase.from('messages').insert({
         match_id: id,
         sender_id: user.id,
         content: content.trim(),
@@ -138,7 +138,7 @@ export default function ChatPage({
 
   const sharePhone = async () => {
     if (!user) return;
-    await (supabase.from('messages') as any).insert({
+    await supabase.from('messages').insert({
       match_id: id,
       sender_id: user.id,
       content: null,
@@ -148,7 +148,7 @@ export default function ChatPage({
 
   const shareWhatsApp = async () => {
     if (!user) return;
-    await (supabase.from('messages') as any).insert({
+    await supabase.from('messages').insert({
       match_id: id,
       sender_id: user.id,
       content: null,
@@ -160,7 +160,7 @@ export default function ChatPage({
     if (!navigator.geolocation) return;
     navigator.geolocation.getCurrentPosition(async (pos) => {
       const { latitude, longitude } = pos.coords;
-      await (supabase.from('messages') as any).insert({
+      await supabase.from('messages').insert({
         match_id: id,
         sender_id: user!.id,
         content: null,

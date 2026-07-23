@@ -36,6 +36,7 @@ export default function SupabaseProvider({ children }: { children: ReactNode }) 
     await supabase.auth.signOut();
     setUser(null);
     router.push('/');
+    router.refresh();
   }, [supabase, router]);
 
   const toggleTheme = useCallback(() => {
@@ -46,47 +47,37 @@ export default function SupabaseProvider({ children }: { children: ReactNode }) 
     });
   }, []);
 
-  // Load theme preference
   useEffect(() => {
+    // Load theme preference
     const saved = localStorage.getItem('swapcar-theme') as Theme | null;
     if (saved) setTheme(saved);
   }, []);
 
-  // Apply theme
   useEffect(() => {
+    // Apply theme to html element
     document.documentElement.classList.remove('light', 'dark');
     document.documentElement.classList.add(theme);
   }, [theme]);
 
-  // Auth state management — single effect, no router.refresh to avoid loops
   useEffect(() => {
-    let mounted = true;
-
-    const getInitialSession = async () => {
+    const getUser = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      console.log('[SwapCar Auth] getSession:', session ? `found user ${session.user.email}` : 'no session');
-      if (mounted) {
-        setUser(session?.user ?? null);
-        setLoading(false);
-      }
+      setUser(session?.user ?? null);
+      setLoading(false);
     };
 
-    getInitialSession();
+    getUser();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event: string, session: import('@supabase/supabase-js').Session | null) => {
-        if (mounted) {
-          setUser(session?.user ?? null);
-          setLoading(false);
-        }
-      }
-    );
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+      setLoading(false);
+      router.refresh();
+    });
 
     return () => {
-      mounted = false;
       subscription.unsubscribe();
     };
-  }, [supabase]); // 👈 solo supabase, sin router
+  }, [supabase, router]);
 
   return (
     <SupabaseContext.Provider value={{ user, loading, signOut, theme, toggleTheme }}>

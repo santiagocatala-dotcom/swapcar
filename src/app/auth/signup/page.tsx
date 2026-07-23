@@ -26,7 +26,7 @@ export default function SignupPage() {
 
     setLoading(true);
 
-    const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+    const { error: signUpError } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -44,34 +44,21 @@ export default function SignupPage() {
       return;
     }
 
-    // Try to create profile immediately (works if email confirmation is OFF)
-    const userId = signUpData?.user?.id;
-    if (userId) {
-      const { error: upsertError } = await (supabase.from('users') as any).upsert({
-        id: userId,
-        email,
+    // Create user profile in the public.users table
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      await supabase.from('users').upsert({
+        id: user.id,
+        email: user.email,
         name,
         created_at: new Date().toISOString(),
         last_seen: new Date().toISOString(),
-      }, { onConflict: 'id' });
-
-      if (upsertError) {
-        console.error('Error creating profile:', upsertError);
-        // Non-fatal - profile will be created by trigger or callback
-      }
-
-      // If email confirmation is OFF, the user is already logged in
-      if (signUpData?.session) {
-        setLoading(false);
-        router.push('/onboarding/vehicle');
-        router.refresh();
-        return;
-      }
+      });
     }
 
     setLoading(false);
-    // Email confirmation is ON - tell user to check email
-    setError('Revisá tu email para confirmar la cuenta. Si no llega, revisá spam.');
+    // Show confirmation message
+    router.push('/auth/login?confirmed=check your email');
   };
 
   const handleGoogleSignup = async () => {

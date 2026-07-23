@@ -5,8 +5,7 @@ import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { useSupabase } from '@/components/SupabaseProvider';
 import { BRANDS, FUEL_TYPES, TRANSMISSION_TYPES } from '@/lib/constants';
-import { ArrowLeft, Camera, Loader2, Upload, X, AlertCircle } from 'lucide-react';
-import { IMAGE_CONFIG, validateImageFile, validateImageDimensions, compressImage, generateSecureFilename } from '@/lib/image-security';
+import { ArrowLeft, Camera, Loader2, Upload, X } from 'lucide-react';
 
 export default function OnboardingVehiclePage() {
   const { user } = useSupabase();
@@ -33,9 +32,6 @@ export default function OnboardingVehiclePage() {
   const [brandSearch, setBrandSearch] = useState('');
   const [showBrandSuggestions, setShowBrandSuggestions] = useState(false);
 
-  const [photoErrors, setPhotoErrors] = useState<string[]>([]);
-  const [uploadProgress, setUploadProgress] = useState(0);
-
   const filteredBrands = BRANDS.filter((b) =>
     b.toLowerCase().includes(brandSearch.toLowerCase())
   );
@@ -43,54 +39,9 @@ export default function OnboardingVehiclePage() {
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: currentYear - 1979 }, (_, i) => currentYear - i);
 
-  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
-    setPhotoErrors([]);
-
-    // Validate each file
-    const errors: string[] = [];
-    const validFiles: File[] = [];
-
-    for (const file of files) {
-      const error = validateImageFile(file);
-      if (error) {
-        errors.push(`${file.name}: ${error}`);
-        continue;
-      }
-
-      // Validate dimensions
-      const dimError = await validateImageDimensions(file);
-      if (dimError) {
-        errors.push(`${file.name}: ${dimError}`);
-        continue;
-      }
-
-      validFiles.push(file);
-    }
-
-    if (errors.length > 0) {
-      setPhotoErrors(errors);
-    }
-
-    if (validFiles.length === 0) return;
-
-    // Compress images before adding
-    const compressed: File[] = [];
-    for (const file of validFiles) {
-      try {
-        const compressedBlob = await compressImage(file);
-        const compressedFile = new File(
-          [compressedBlob],
-          file.name.replace(/\.[^.]+$/, '.webp'),
-          { type: 'image/webp' }
-        );
-        compressed.push(compressedFile);
-      } catch {
-        compressed.push(file); // fallback to original
-      }
-    }
-
-    const newPhotos = [...photos, ...compressed].slice(0, IMAGE_CONFIG.MAX_PHOTOS_PER_VEHICLE);
+    const newPhotos = [...photos, ...files].slice(0, 10);
     setPhotos(newPhotos);
 
     // Create preview URLs
@@ -110,53 +61,29 @@ export default function OnboardingVehiclePage() {
     setLoading(true);
 
     try {
-      // Upload photos with validation + compression
+      // Upload photos to Supabase Storage
       const uploadedUrls: string[] = [];
       for (const photo of photos) {
-        const valError = validateImageFile(photo);
-        if (valError) {
-          setError(valError);
-          setLoading(false);
-          return;
-        }
-
-        // Compress antes de subir
-        let fileToUpload = photo;
-        try {
-          const compressedBlob = await compressImage(photo);
-          fileToUpload = new File([compressedBlob], photo.name.replace(/\.[^.]+$/, '.webp'), { type: 'image/webp' });
-        } catch {
-          // fallback a original si falla compresión
-        }
-
-        // Generar nombre seguro
-        const ext = fileToUpload.name.split('.').pop();
-        const fileName = `${user.id}/${Date.now()}-${crypto.randomUUID().slice(0, 8)}.${ext}`;
-
-        const { error: uploadError } = await supabase.storage
+        const ext = photo.name.split('.').pop();
+        const fileName = `${user.id}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+        const { data, error: uploadError } = await supabase.storage
           .from('vehicle-photos')
-          .upload(fileName, fileToUpload, {
-            contentType: fileToUpload.type,
-            cacheControl: 'public, max-age=31536000',
-            upsert: false,
-          });
+          .upload(fileName, photo);
 
         if (uploadError) {
           console.error('Upload error:', uploadError);
-          setError(`Error al subir "${photo.name}".`);
-          setLoading(false);
-          return;
+          continue;
         }
 
-        const { data: { publicUrl } } = supabase.storage
+        const { data: urlData } = supabase.storage
           .from('vehicle-photos')
           .getPublicUrl(fileName);
 
-        uploadedUrls.push(publicUrl);
+        if (urlData) uploadedUrls.push(urlData.publicUrl);
       }
 
       // Insert vehicle
-      const { error: insertError } = await (supabase.from('vehicles') as any).insert({
+      const { error: insertError } = await supabase.from('vehicles').insert({
         user_id: user.id,
         brand,
         model,
@@ -249,18 +176,6 @@ export default function OnboardingVehiclePage() {
               )}
             </div>
           </div>
-
-        {/* Photo validation errors */}
-        {photoErrors.length > 0 && (
-          <div className="p-3 bg-red-50 border border-red-200 rounded-xl">
-            {photoErrors.map((err, i) => (
-              <p key={i} className="text-xs text-red-600 flex items-center gap-1">
-                <AlertCircle className="w-3 h-3 flex-shrink-0" />
-                {err}
-              </p>
-            ))}
-          </div>
-        )}
 
           {/* Brand */}
           <div className="relative">

@@ -108,11 +108,12 @@ export default function EditProfilePage() {
     setLoading(true);
     try {
       // Profile
-      const { data: userData } = await (supabase.from('users') as any)
-          .select('name, city, province')
-          .eq('id', user.id)
-          .single();
-        if (userData) {
+      const { data: userData } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+      if (userData) {
         setName(userData.name || '');
         setCity(userData.city || '');
         setProvince(userData.province || '');
