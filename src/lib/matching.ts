@@ -9,6 +9,9 @@ import type {
   SwipeCandidate,
   MatchWithUsers,
   SwipeDirection,
+  Vehicle,
+  Preferences,
+  User,
 } from '@/lib/types';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { calculateCompatibility } from '@/lib/compatibility';
