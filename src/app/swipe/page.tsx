@@ -22,6 +22,7 @@ import {
   Loader2,
   Fuel,
   Cog,
+  User,
 } from 'lucide-react';
 
 const SWIPE_THRESHOLD = 100;
@@ -216,6 +217,23 @@ export default function SwipePage() {
               }}
               transition={{ type: 'spring', stiffness: 300, damping: 25 }}
             >
+              {/* Avatar + name top left */}
+              <div className="absolute top-3 left-3 flex items-center gap-2 z-10">
+                <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-white shadow-md">
+                  {candidate.user.avatar_url ? (
+                    <img src={candidate.user.avatar_url} alt={candidate.user.name} className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full bg-gray-300 flex items-center justify-center">
+                      <User className="w-5 h-5 text-white" />
+                    </div>
+                  )}
+                </div>
+                <div className="bg-black/40 backdrop-blur-sm rounded-lg px-3 py-1.5">
+                  <p className="text-white font-semibold text-sm leading-tight">{candidate.user.name}</p>
+                  <p className="text-white/70 text-xs leading-tight">{candidate.user.city || candidate.user.province || ''}</p>
+                </div>
+              </div>
+
               {/* Photo */}
               <div className="relative h-2/3 bg-gray-100">
                 {photo ? (

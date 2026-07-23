@@ -56,6 +56,10 @@ export default function EditProfilePage() {
   const [existingPhotos, setExistingPhotos] = useState<string[]>([]);
   const [newPhotos, setNewPhotos] = useState<File[]>([]);
   const [newPhotoPreviews, setNewPhotoPreviews] = useState<string[]>([]);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [savingAvatar, setSavingAvatar] = useState(false);
 
   // Preferences fields
   const [vehicleTypes, setVehicleTypes] = useState<VehicleType[]>([]);
@@ -122,6 +126,7 @@ export default function EditProfilePage() {
         setName(userData.name || '');
         setCity(userData.city || '');
         setProvince(userData.province || '');
+        setAvatarUrl(userData.avatar_url || null);
       }
 
       // Vehicle
@@ -360,6 +365,37 @@ export default function EditProfilePage() {
     setNewPhotos((prev) => [...prev, ...toAdd]);
     setNewPhotoPreviews((prev) => [...prev, ...toAdd.map((f) => URL.createObjectURL(f))]);
   };
+  const handleAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setAvatarFile(file);
+    setAvatarPreview(URL.createObjectURL(file));
+  };
+  const saveAvatar = async () => {
+    if (!user || !avatarFile) return;
+    setSavingAvatar(true);
+    setError('');
+    try {
+      const ext = avatarFile.name.split('.').pop() || 'jpg';
+      const fileName = `avatars/${user.id}/${Date.now()}.${ext}`;
+      const { data, error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(fileName, avatarFile);
+      if (uploadError) throw uploadError;
+      const { data: { publicUrl } } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(fileName);
+      await supabase.from('users').update({ avatar_url: publicUrl }).eq('id', user.id);
+      setAvatarUrl(publicUrl);
+      setAvatarFile(null);
+      setAvatarPreview(null);
+      showSuccess('Foto de perfil actualizada');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Error al subir foto');
+    } finally {
+      setSavingAvatar(false);
+    }
+  };
   const removeExistingPhoto = (index: number) => {
     setExistingPhotos((prev) => prev.filter((_, i) => i !== index));
   };
@@ -408,6 +444,55 @@ export default function EditProfilePage() {
           </div>
 
           <div className="space-y-4">
+            {/* Avatar */}
+            <div className="flex flex-col items-center gap-3 mb-4">
+              <div className="w-24 h-24 rounded-full overflow-hidden bg-gray-100 border-2 border-gray-200">
+                {avatarPreview ? (
+                  <img src={avatarPreview} alt="Preview" className="w-full h-full object-cover" />
+                ) : avatarUrl ? (
+                  <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <Camera className="w-8 h-8 text-gray-300" />
+                  </div>
+                )}
+              </div>
+              <div className="flex gap-2">
+                <label className="px-4 py-1.5 bg-black text-white text-xs font-medium rounded-full cursor-pointer hover:bg-gray-800 transition-all">
+                  {avatarFile ? 'Cambiar foto' : 'Sacar foto'}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    capture="user"
+                    onChange={handleAvatarUpload}
+                    className="hidden"
+                  />
+                </label>
+                {avatarFile && (
+                  <button
+                    onClick={saveAvatar}
+                    disabled={savingAvatar}
+                    className="px-4 py-1.5 bg-green-500 text-white text-xs font-medium rounded-full hover:bg-green-600 transition-all disabled:opacity-50"
+                  >
+                    {savingAvatar ? 'Subiendo...' : 'Guardar'}
+                  </button>
+                )}
+                {avatarUrl && !avatarFile && (
+                  <button
+                    onClick={async () => {
+                      await supabase.from('users').update({ avatar_url: null }).eq('id', user!.id);
+                      setAvatarUrl(null);
+                      showSuccess('Foto eliminada');
+                    }}
+                    className="px-4 py-1.5 bg-red-100 text-red-600 text-xs font-medium rounded-full hover:bg-red-200 transition-all"
+                  >
+                    Eliminar
+                  </button>
+                )}
+              </div>
+              <p className="text-[10px] text-gray-400">Usá la cámara para sacarte una foto</p>
+            </div>
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1.5">
                 Nombre
