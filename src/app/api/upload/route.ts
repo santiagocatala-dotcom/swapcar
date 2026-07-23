@@ -129,6 +129,37 @@ export async function POST(request: NextRequest) {
     const { generateSecureFilename } = await import('@/lib/image-security');
     const securePath = generateSecureFilename(user.id, file.name);
 
+    // Compute SHA-256 hash for duplicate detection
+    const hashBuffer = await crypto.subtle.digest('SHA-256', buffer);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const fileHash = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
+
+    // Check for exact duplicate across ALL users
+    const { data: existingHash } = await supabaseAdmin
+      .from('photo_verifications')
+      .select('id, user_id')
+      .eq('file_hash', fileHash)
+      .maybeSingle();
+
+    if (existingHash && existingHash.user_id !== user.id) {
+      // Log the duplicate for review
+      console.warn(`[upload] Duplicate photo detected: ${fileHash} already used by user ${existingHash.user_id}`);
+    }
+
+    // Log verification attempt (fire-and-forget)
+    try {
+      await supabaseAdmin.from('photo_verifications').insert({
+        photo_url: securePath,
+        user_id: user.id,
+        file_hash: fileHash,
+        status: 'pending',
+        ai_provider: null,
+      });
+    } catch (e) {
+      // Non-critical — don't block upload
+      console.warn('[upload] Failed to log verification:', e);
+    }
+
     // Upload to Supabase Storage
     const { data: uploadData, error: uploadError } = await supabase.storage
       .from('vehicle-photos')

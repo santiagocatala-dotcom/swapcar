@@ -9,6 +9,7 @@ import type {
   UserWithVehicle,
   Preferences,
   CompatibilityDetails,
+  CashDifference,
 } from '@/lib/types';
 
 // ============================================================
@@ -124,7 +125,7 @@ export function calculateCompatibility(
   userB: UserWithVehicle,
   prefsA: Preferences,
   prefsB: Preferences,
-): { score: number; details: CompatibilityDetails } {
+): { score: number; details: CompatibilityDetails; cashDifference: CashDifference } {
   // ---- 1. Vehicle type compatibility ----
   const aVehicleTypes: string[] = (prefsA.vehicle_types ?? []).map((t) => t.toLowerCase());
   const bVehicleTypes: string[] = (prefsB.vehicle_types ?? []).map((t) => t.toLowerCase());
@@ -173,6 +174,15 @@ export function calculateCompatibility(
     economicGrade = 100;
   }
   // If either value is null, we can't compute — leave neutral
+
+  // ---- Cash difference (from userA's perspective) ----
+  const cashDifference = {
+    amount: valueA !== null && valueB !== null
+      ? Math.round((valueB - valueA) / 100) * 100 // round to nearest 100
+      : null,
+    currency: 'USD' as const,
+    canCompute: valueA !== null && valueB !== null,
+  };
 
   // ---- 3. Distance fit ----
   const provinceA = userA.province ?? '';
@@ -308,5 +318,6 @@ export function calculateCompatibility(
       brandModelFit,
       brandModelGrade,
     },
+    cashDifference,
   };
 }

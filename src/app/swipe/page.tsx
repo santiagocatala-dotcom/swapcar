@@ -274,6 +274,41 @@ export default function SwipePage() {
                       : candidate.user.province || 'Sin ubicación'}
                   </span>
                 </div>
+
+                {/* Cash difference badge — bottom right */}
+                {candidate.cashDifference.canCompute && candidate.cashDifference.amount !== null && (
+                  <div className="absolute bottom-3 right-3 group">
+                    <span
+                      className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold backdrop-blur-sm ${
+                        candidate.cashDifference.amount > 0
+                          ? 'bg-green-500/80 text-white'
+                          : candidate.cashDifference.amount < 0
+                          ? 'bg-orange-500/80 text-white'
+                          : 'bg-gray-500/60 text-white'
+                      }`}
+                    >
+                      {candidate.cashDifference.amount === 0 ? (
+                        'Mano a mano'
+                      ) : (
+                        <>
+                          {candidate.cashDifference.amount > 0 ? '+' : '−'}
+                          {' '}USD {Math.abs(candidate.cashDifference.amount).toLocaleString()}
+                        </>
+                      )}
+                    </span>
+                    {/* Tooltip */}
+                    <div className="absolute bottom-full right-0 mb-2 hidden group-hover:block group-active:block">
+                      <div className="bg-gray-900 text-white text-xs rounded-lg px-3 py-2 shadow-lg max-w-[200px] text-center whitespace-nowrap">
+                        {candidate.cashDifference.amount > 0
+                          ? `Recibirías este vehículo más USD ${candidate.cashDifference.amount.toLocaleString()}.`
+                          : candidate.cashDifference.amount < 0
+                          ? `Entregarías tu vehículo más USD ${Math.abs(candidate.cashDifference.amount).toLocaleString()}.`
+                          : 'Intercambio sin diferencia económica.'}
+                        <div className="absolute top-full right-4 w-2 h-2 bg-gray-900 transform rotate-45 -mt-1" />
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Vehicle info */}

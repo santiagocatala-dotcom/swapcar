@@ -102,6 +102,7 @@ export interface SwipeCandidate {
   compatibility: number;
   compatibilityDetails: CompatibilityDetails;
   distance: number;
+  cashDifference: CashDifference;
 }
 
 export interface CompatibilityDetails {
@@ -123,3 +124,52 @@ export interface MatchWithUsers extends Match {
   currentUser: UserWithVehicle;
   lastMessage?: Message;
 }
+
+// ======== Cash / Offer types ========
+
+export interface CashDifference {
+  amount: number | null;
+  currency: string;
+  canCompute: boolean;
+  /** From viewer's perspective: positive = viewer receives cash, negative = viewer pays */
+}
+
+export interface Offer {
+  id: string;
+  match_id: string;
+  sender_id: string;
+  receiver_id: string;
+  sender_vehicle_id: string | null;
+  receiver_vehicle_id: string | null;
+  cash_difference: number | null;
+  cash_currency: string;
+  cash_direction: 'sender_pays' | 'receiver_pays' | 'none';
+  message: string | null;
+  status: 'pending' | 'accepted' | 'rejected' | 'cancelled' | 'countered';
+  is_counter: boolean;
+  parent_offer_id: string | null;
+  expires_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+// ======== Verification types ========
+
+export interface UserVerification {
+  email_verified: boolean;
+  phone_verified: boolean;
+  identity_verified: boolean;
+  vehicle_verified: boolean;
+  phone: string | null;
+}
+
+export interface TrustScore {
+  score: number;
+  account_age_days: number;
+  email_verified: boolean;
+  phone_verified: boolean;
+  identity_verified: boolean;
+  vehicle_verified: boolean;
+}
+
+export type VerificationBadge = 'email' | 'phone' | 'identity' | 'vehicle';

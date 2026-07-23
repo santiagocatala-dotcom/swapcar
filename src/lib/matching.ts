@@ -9,6 +9,7 @@ import type {
   SwipeCandidate,
   MatchWithUsers,
   SwipeDirection,
+  CashDifference,
 } from '@/lib/types';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { calculateCompatibility } from '@/lib/compatibility';
@@ -124,7 +125,7 @@ export async function getCandidates(
   for (const raw of candidatesRaw) {
     try {
       const otherUser = buildUserWithVehicle(raw as Record<string, unknown>);
-      const { score, details } = calculateCompatibility(
+      const { score, details, cashDifference } = calculateCompatibility(
         currentUser,
         otherUser,
         currentUser.preferences,
@@ -138,6 +139,7 @@ export async function getCandidates(
         user: otherUser,
         compatibility: score,
         compatibilityDetails: details,
+        cashDifference,
         distance: 0, // calculated below
       });
     } catch {
