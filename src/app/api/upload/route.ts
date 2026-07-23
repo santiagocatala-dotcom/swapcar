@@ -147,17 +147,25 @@ export async function POST(request: NextRequest) {
     }
 
     // Log verification attempt (fire-and-forget)
+    let verificationId: string | null = null;
     try {
-      await supabaseAdmin.from('photo_verifications').insert({
+      const { data: vData } = await supabaseAdmin.from('photo_verifications').insert({
         photo_url: securePath,
         user_id: user.id,
         file_hash: fileHash,
         status: 'pending',
-        ai_provider: null,
-      });
+        ai_provider: process.env.AI_VISION_API_KEY ? 'google_cloud_vision' : null,
+      }).select('id').single();
+      if (vData) verificationId = vData.id;
     } catch (e) {
-      // Non-critical — don't block upload
       console.warn('[upload] Failed to log verification:', e);
+    }
+
+    // AI analysis via Google Cloud Vision (if configured)
+    if (process.env.AI_VISION_API_KEY && verificationId) {
+      analyzeImageWithAI(buffer, fileHash, user.id, verificationId, supabaseAdmin).catch((err) => {
+        console.error('[upload] AI analysis failed:', err);
+      });
     }
 
     // Upload to Supabase Storage
@@ -195,4 +203,102 @@ export async function POST(request: NextRequest) {
     urls: uploadedUrls,
     count: uploadedUrls.length,
   });
+}
+
+// ============================================================
+// AI Image Analysis — Google Cloud Vision
+// ============================================================
+
+interface VisionResponse {
+  labelAnnotations?: { description: string; score: number }[];
+  safeSearchAnnotation?: { adult: string; violence: string; racy: string };
+  textAnnotations?: { description: string }[];
+  localizedObjectAnnotations?: { name: string; score: number }[];
+}
+
+async function analyzeImageWithAI(
+  buffer: Buffer,
+  fileHash: string,
+  userId: string,
+  verificationId: string,
+  supabaseAdmin: any,
+): Promise<void> {
+  const apiKey = process.env.AI_VISION_API_KEY;
+  if (!apiKey) return;
+
+  const base64 = buffer.toString('base64');
+
+  const response = await fetch(
+    `https://vision.googleapis.com/v1/images:annotate?key=${apiKey}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        requests: [{
+          image: { content: base64 },
+          features: [
+            { type: 'LABEL_DETECTION', maxResults: 10 },
+            { type: 'SAFE_SEARCH_DETECTION' },
+            { type: 'OBJECT_LOCALIZATION', maxResults: 10 },
+            { type: 'TEXT_DETECTION', maxResults: 5 },
+          ],
+        }],
+      }),
+    }
+  );
+
+  if (!response.ok) {
+    console.error(`[Vision API] HTTP ${response.status}: ${await response.text()}`);
+    return;
+  }
+
+  const data: { responses: VisionResponse[] } = await response.json();
+  const result = data.responses?.[0];
+  if (!result) return;
+
+  // Check: does the image contain a vehicle?
+  const vehicleLabels = ['vehicle', 'car', 'truck', 'motorcycle', 'automotive', 'suv', 'pickup', 'van'];
+  const labels = (result.labelAnnotations ?? []).map((l) => l.description.toLowerCase());
+  const hasVehicle = labels.some((l) => vehicleLabels.some((v) => l.includes(v)));
+  const maxLabelScore = Math.max(...(result.labelAnnotations ?? []).map((l) => l.score), 0);
+
+  // Check: safe search flags
+  const safe = result.safeSearchAnnotation;
+  const isAdult = safe?.adult === 'LIKELY' || safe?.adult === 'VERY_LIKELY';
+  const isViolent = safe?.violence === 'LIKELY' || safe?.violence === 'VERY_LIKELY';
+
+  // Check: excessive text (could be screenshot/ad)
+  const text = result.textAnnotations?.[0]?.description ?? '';
+  const hasExcessiveText = text.length > 200;
+
+  // Classify
+  let status = 'approved';
+  let reason: string | null = null;
+  let confidence = hasVehicle ? maxLabelScore : maxLabelScore * 0.5;
+
+  if (isAdult || isViolent) {
+    status = 'rejected';
+    reason = isAdult ? 'Contenido inapropiado detectado.' : 'Violencia detectada.';
+    confidence = 0;
+  } else if (!hasVehicle && maxLabelScore > 0.5) {
+    status = 'manual_review';
+    reason = 'No se detectó un vehículo claramente.';
+  } else if (hasExcessiveText) {
+    status = 'manual_review';
+    reason = 'La imagen contiene texto excesivo (posible captura de pantalla).';
+  } else if (maxLabelScore < 0.3) {
+    status = 'manual_review';
+    reason = 'La imagen está borrosa o no es reconocible.';
+  }
+
+  // Update verification record
+  await supabaseAdmin
+    .from('photo_verifications')
+    .update({
+      status,
+      rejection_reason: reason,
+      ai_confidence: Math.round(confidence * 100) / 100,
+      ai_result: result as any,
+    })
+    .eq('id', verificationId);
 }
