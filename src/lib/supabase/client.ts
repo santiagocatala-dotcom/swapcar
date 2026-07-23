@@ -8,15 +8,7 @@ let supabaseInstance: any = null;
 export function createClient(): any {
   if (supabaseInstance) return supabaseInstance;
 
-  supabaseInstance = createSupabaseClient(supabaseUrl, supabaseAnonKey, {
-    auth: {
-      autoRefreshToken: true,
-      persistSession: true,
-      detectSessionInUrl: true,
-      storageKey: 'swapcar-auth',
-      storage: typeof window !== 'undefined' ? localStorage : undefined,
-    },
-  });
+  supabaseInstance = createSupabaseClient(supabaseUrl, supabaseAnonKey);
 
   return supabaseInstance;
 }
