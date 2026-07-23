@@ -52,6 +52,11 @@ export default function EditProfilePage() {
   const [color, setColor] = useState('');
   const [estimatedValue, setEstimatedValue] = useState('');
 
+  // Photo management
+  const [existingPhotos, setExistingPhotos] = useState<string[]>([]);
+  const [newPhotos, setNewPhotos] = useState<File[]>([]);
+  const [newPhotoPreviews, setNewPhotoPreviews] = useState<string[]>([]);
+
   // Preferences fields
   const [vehicleTypes, setVehicleTypes] = useState<VehicleType[]>([]);
   const [preferredBrands, setPreferredBrands] = useState<string[]>([]);
@@ -135,6 +140,7 @@ export default function EditProfilePage() {
         setTransmission(vehicleData.transmission || '');
         setColor(vehicleData.color || '');
         setEstimatedValue(vehicleData.estimated_value?.toString() || '');
+        setExistingPhotos(vehicleData.photos || []);
       }
 
       // Preferences
@@ -212,9 +218,26 @@ export default function EditProfilePage() {
     try {
       const { data: existing } = await supabase
         .from('vehicles')
-        .select('id')
+        .select('id, photos')
         .eq('user_id', user.id)
         .single();
+
+      // Upload new photos
+      let allPhotos = [...existingPhotos];
+      if (newPhotos.length > 0) {
+        const { data: { session } } = await supabase.auth.getSession();
+        const formData = new FormData();
+        newPhotos.forEach((photo) => formData.append('photos', photo));
+        const res = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData,
+          headers: { 'Authorization': `Bearer ${session?.access_token || ''}` },
+        });
+        const result = await res.json();
+        if (result.success) {
+          allPhotos = [...allPhotos, ...result.urls];
+        }
+      }
 
       const vehicleData = {
         user_id: user.id,
@@ -227,6 +250,7 @@ export default function EditProfilePage() {
         transmission: transmission || null,
         color: color || null,
         estimated_value: estimatedValue ? parseFloat(estimatedValue) : null,
+        photos: allPhotos,
       };
 
       if (existing) {
@@ -326,6 +350,22 @@ export default function EditProfilePage() {
     setTransmissionTypes((prev) =>
       prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t]
     );
+  };
+
+  // Photo handlers
+  const handleEditPhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    const remaining = 10 - (existingPhotos.length + newPhotos.length);
+    const toAdd = files.slice(0, remaining);
+    setNewPhotos((prev) => [...prev, ...toAdd]);
+    setNewPhotoPreviews((prev) => [...prev, ...toAdd.map((f) => URL.createObjectURL(f))]);
+  };
+  const removeExistingPhoto = (index: number) => {
+    setExistingPhotos((prev) => prev.filter((_, i) => i !== index));
+  };
+  const removeNewPhoto = (index: number) => {
+    setNewPhotos((prev) => prev.filter((_, i) => i !== index));
+    setNewPhotoPreviews((prev) => prev.filter((_, i) => i !== index));
   };
 
   if (loading) {
@@ -625,9 +665,55 @@ export default function EditProfilePage() {
               )}
               Guardar vehículo
             </button>
+
+            {/* Photos */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Fotos <span className="text-gray-400">(máx. 10)</span>
+              </label>
+              <div className="grid grid-cols-3 gap-2">
+                {existingPhotos.map((url, i) => (
+                  <div key={i} className="relative aspect-[4/3] rounded-xl overflow-hidden bg-gray-100">
+                    <img src={url} alt={`Foto ${i + 1}`} className="w-full h-full object-cover" />
+                    <button
+                      type="button"
+                      onClick={() => removeExistingPhoto(i)}
+                      className="absolute top-1 right-1 w-6 h-6 bg-black/50 rounded-full flex items-center justify-center hover:bg-black/70"
+                    >
+                      <X className="w-3 h-3 text-white" />
+                    </button>
+                  </div>
+                ))}
+                {newPhotoPreviews.map((url, i) => (
+                  <div key={`new-${i}`} className="relative aspect-[4/3] rounded-xl overflow-hidden bg-gray-100">
+                    <img src={url} alt={`Nueva foto ${i + 1}`} className="w-full h-full object-cover" />
+                    <button
+                      type="button"
+                      onClick={() => removeNewPhoto(i)}
+                      className="absolute top-1 right-1 w-6 h-6 bg-black/50 rounded-full flex items-center justify-center hover:bg-black/70"
+                    >
+                      <X className="w-3 h-3 text-white" />
+                    </button>
+                  </div>
+                ))}
+                {(existingPhotos.length + newPhotos.length) < 10 && (
+                  <label className="aspect-[4/3] rounded-xl border-2 border-dashed border-gray-200 flex flex-col items-center justify-center cursor-pointer hover:border-gray-400 transition-colors bg-white">
+                    <Camera className="w-6 h-6 text-gray-400 mb-1" />
+                    <span className="text-[10px] text-gray-400">Agregar</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      onChange={handleEditPhotoUpload}
+                      className="hidden"
+                    />
+                  </label>
+                )}
+              </div>
+            </div>
           </div>
         </section>
-
+        
         {/* ===== Preferences Section ===== */}
         <section className="bg-white rounded-2xl border border-gray-100 p-5">
           <div className="flex items-center gap-2 mb-4">
