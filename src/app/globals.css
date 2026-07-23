@@ -138,6 +138,19 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Safe area for notched phones */
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.overscroll-none {
+  overscroll-behavior: none;
+}
+
 body {
   background: var(--color-background);
   color: var(--color-text);
