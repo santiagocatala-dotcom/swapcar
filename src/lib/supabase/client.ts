@@ -5,7 +5,7 @@
 
 const URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-const STORAGE_KEY = '***';
+const STORAGE_KEY = 'sb-swapcar-auth';
 
 function headers(extra: Record<string, string> = {}): Record<string, string> {
   return { 'apikey': KEY, 'Authorization': `Bearer ${KEY}`, 'Accept': 'application/json', ...extra };
