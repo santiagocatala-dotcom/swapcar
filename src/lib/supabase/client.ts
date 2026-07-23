@@ -104,13 +104,23 @@ const db = {
     signUp: async (c: any) => {
       const r = await fetch(`${URL}/auth/v1/signup`, { method: 'POST', headers: { 'apikey': KEY, 'Content-Type': 'application/json' }, body: JSON.stringify({ email: c.email, password: c.password, data: c.options?.data }) });
       const d = await r.json();
-      if (d.user) store(d);
+      if (d.user) {
+        store(d);
+        // Create profile in public.users immediately (even if email confirmation is ON)
+        await post(`users`, {
+          id: d.user.id,
+          email: d.user.email,
+          name: c.options?.data?.name || d.user.email?.split('@')[0] || 'Usuario',
+        }, 'resolution=merge-duplicates');
+      }
       return { data: { user: d.user }, error: d.error_description ? { message: d.error_description } : null };
     },
     signInWithPassword: async (c: any) => {
       const r = await fetch(`${URL}/auth/v1/token?grant_type=password`, { method: 'POST', headers: { 'apikey': KEY, 'Content-Type': 'application/json' }, body: JSON.stringify({ email: c.email, password: c.password }) });
       const d = await r.json();
-      if (d.user) store(d);
+      if (d.user) {
+        store(d);
+      }
       return { data: { user: d.user }, error: d.error_description ? { message: d.error_description } : null };
     },
     signInWithOAuth: async (c: any) => {
