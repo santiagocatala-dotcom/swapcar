@@ -156,7 +156,7 @@ export default function OnboardingVehiclePage() {
       }
 
       // Insert vehicle
-      const { error: insertError } = await supabase.from('vehicles').insert({
+      const { error: insertError } = await (supabase.from('vehicles') as any).insert({
         user_id: user.id,
         brand,
         model,

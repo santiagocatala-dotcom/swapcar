@@ -73,7 +73,7 @@ export default function SupabaseProvider({ children }: { children: ReactNode }) 
     getInitialSession();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
+      (event: string, session: import('@supabase/supabase-js').Session | null) => {
         if (mounted) {
           setUser(session?.user ?? null);
           setLoading(false);

@@ -47,7 +47,7 @@ export default function SignupPage() {
     // Try to create profile immediately (works if email confirmation is OFF)
     const userId = signUpData?.user?.id;
     if (userId) {
-      const { error: upsertError } = await supabase.from('users').upsert({
+      const { error: upsertError } = await (supabase.from('users') as any).upsert({
         id: userId,
         email,
         name,

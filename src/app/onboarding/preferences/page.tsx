@@ -120,7 +120,7 @@ export default function OnboardingPreferencesPage() {
     setLoading(true);
 
     try {
-      const { error: insertError } = await supabase.from('preferences').insert({
+      const { error: insertError } = await (supabase.from('preferences') as any).insert({
         user_id: user.id,
         vehicle_types: vehicleTypes,
         preferred_brands: preferredBrands,
