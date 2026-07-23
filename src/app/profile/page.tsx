@@ -78,7 +78,7 @@ export default function ProfilePage() {
         .from('vehicles')
         .select('*')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
 
       if (vehicleData) setVehicle(vehicleData);
 
@@ -87,7 +87,7 @@ export default function ProfilePage() {
         .from('preferences')
         .select('*')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
 
       if (prefsData) setPreferences(prefsData);
 
