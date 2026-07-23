@@ -71,7 +71,6 @@ export default function SupabaseProvider({ children }: { children: ReactNode }) 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event: string, session: any) => {
       setUser(session?.user ?? null);
       setLoading(false);
-      router.refresh();
     });
 
     return () => {

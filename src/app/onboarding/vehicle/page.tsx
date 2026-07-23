@@ -61,25 +61,18 @@ export default function OnboardingVehiclePage() {
     setLoading(true);
 
     try {
-      // Upload photos to Supabase Storage
-      const uploadedUrls: string[] = [];
-      for (const photo of photos) {
-        const ext = photo.name.split('.').pop();
-        const fileName = `${user.id}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-        const { data, error: uploadError } = await supabase.storage
-          .from('vehicle-photos')
-          .upload(fileName, photo);
-
-        if (uploadError) {
-          console.error('Upload error:', uploadError);
-          continue;
+      // Upload photos via API route (server-side validation + compression)
+      let uploadedUrls: string[] = [];
+      if (photos.length > 0) {
+        const formData = new FormData();
+        photos.forEach((photo) => formData.append('photos', photo));
+        const res = await fetch('/api/upload', { method: 'POST', body: formData });
+        const result = await res.json();
+        if (result.success) {
+          uploadedUrls = result.urls;
+        } else {
+          throw new Error(result.error || 'Error al subir fotos');
         }
-
-        const { data: urlData } = supabase.storage
-          .from('vehicle-photos')
-          .getPublicUrl(fileName);
-
-        if (urlData) uploadedUrls.push(urlData.publicUrl);
       }
 
       // Insert vehicle

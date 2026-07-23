@@ -71,7 +71,7 @@ begin
   delete from public.messages
   where match_id in (select id from public.matches where user1_id = target_user_id or user2_id = target_user_id);
   -- Delete swipes
-  delete from public.swipes where swiper_id = target_user_id or target_user_id = target_user_id;
+  delete from public.swipes where swiper_id = target_user_id or public.swipes.target_user_id = delete_user_data.target_user_id;
   -- Delete matches
   delete from public.matches where user1_id = target_user_id or user2_id = target_user_id;
   -- Delete preferences

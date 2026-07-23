@@ -26,7 +26,7 @@ export default function SignupPage() {
 
     setLoading(true);
 
-    const { error: signUpError } = await supabase.auth.signUp({
+    const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -44,15 +44,12 @@ export default function SignupPage() {
       return;
     }
 
-    // Create user profile in the public.users table
-    const { data: { user } } = await supabase.auth.getUser();
-    if (user) {
+    // Create user profile using signUpData.user.id (NO getUser() — returns null if email confirmation ON)
+    if (signUpData?.user) {
       await supabase.from('users').upsert({
-        id: user.id,
-        email: user.email,
+        id: signUpData.user.id,
+        email: signUpData.user.email,
         name,
-        created_at: new Date().toISOString(),
-        last_seen: new Date().toISOString(),
       });
     }
 
