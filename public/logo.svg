@@ -1,0 +1,33 @@
+<svg width="400" height="130" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="revGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#0f172a"/>
+      <stop offset="100%" style="stop-color:#1e293b"/>
+    </linearGradient>
+  </defs>
+
+  <!-- R e v  —  the "e" is a wheel -->
+  <text x="0" y="90" font-family="system-ui, -apple-system, sans-serif" font-size="90" font-weight="800" fill="#0f172a" letter-spacing="-3">R</text>
+
+  <!-- Wheel as "e" -->
+  <g transform="translate(102, 10)">
+    <!-- Rim (outer circle) -->
+    <circle cx="30" cy="40" r="36" fill="none" stroke="#2563eb" stroke-width="3"/>
+    <!-- Hub -->
+    <circle cx="30" cy="40" r="6" fill="#2563eb"/>
+    <!-- Spokes -->
+    <line x1="30" y1="8" x2="30" y2="16" stroke="#2563eb" stroke-width="3" stroke-linecap="round"/>
+    <line x1="30" y1="64" x2="30" y2="72" stroke="#2563eb" stroke-width="3" stroke-linecap="round"/>
+    <line x1="6" y1="40" x2="14" y2="40" stroke="#2563eb" stroke-width="3" stroke-linecap="round"/>
+    <line x1="46" y1="40" x2="54" y2="40" stroke="#2563eb" stroke-width="3" stroke-linecap="round"/>
+    <line x1="17" y1="27" x2="23" y2="33" stroke="#2563eb" stroke-width="3" stroke-linecap="round"/>
+    <line x1="37" y1="47" x2="43" y2="53" stroke="#2563eb" stroke-width="3" stroke-linecap="round"/>
+    <line x1="17" y1="53" x2="23" y2="47" stroke="#2563eb" stroke-width="3" stroke-linecap="round"/>
+    <line x1="37" y1="33" x2="43" y2="27" stroke="#2563eb" stroke-width="3" stroke-linecap="round"/>
+  </g>
+
+  <text x="148" y="90" font-family="system-ui, -apple-system, sans-serif" font-size="90" font-weight="800" fill="#0f172a" letter-spacing="-3">v</text>
+
+  <!-- Tagline -->
+  <text x="0" y="118" font-family="system-ui, -apple-system, sans-serif" font-size="12" fill="#64748b" letter-spacing="3" font-weight="500">INTERCAMBIO DE VEHÍCULOS</text>
+</svg>

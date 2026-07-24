@@ -2,36 +2,36 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { createClient } from '@/lib/supabase/client';
 
 export default function CallbackHandlerPage() {
   const router = useRouter();
 
   useEffect(() => {
-    try {
-      const hash = window.location.hash.replace('#', '');
-      if (!hash) {
-        router.replace('/?error=no_session');
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get('code');
+    if (!code) {
+      router.replace('/?error=no_code');
+      return;
+    }
+
+    const supabase = createClient();
+    supabase.auth.exchangeCodeForSession(code).then((result: any) => {
+      if (result.error) {
+        console.error('[auth] Callback error:', result.error.message);
+        router.replace(`/?error=${encodeURIComponent(result.error.message)}`);
         return;
       }
-      const session = JSON.parse(decodeURIComponent(hash));
-      if (session?.access_token) {
-        localStorage.setItem('sb-swapcar-auth', JSON.stringify({
-          user: session.user,
-          access_token: session.access_token,
-          refresh_token: session.refresh_token,
-        }));
-        router.replace('/swipe');
-      } else {
-        router.replace('/?error=invalid_session');
-      }
-    } catch {
-      router.replace('/?error=callback_error');
-    }
+      router.replace('/swipe');
+    });
   }, [router]);
 
   return (
     <div className="min-h-screen flex items-center justify-center">
-      <p className="text-sm text-gray-400">Iniciando sesión...</p>
+      <div className="text-center">
+        <div className="w-8 h-8 border-2 border-black border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+        <p className="text-sm text-gray-400">Iniciando sesión...</p>
+      </div>
     </div>
   );
 }
