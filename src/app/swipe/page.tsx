@@ -7,6 +7,7 @@ import { createClient } from '@/lib/supabase/client';
 import { useSupabase } from '@/components/SupabaseProvider';
 import { getCandidates, checkAndCreateMatch } from '@/lib/matching';
 import { checkRateLimit, RATE_LIMITS } from '@/lib/rate-limit';
+import { getVehicleCategory } from '@/lib/constants';
 import type { SwipeCandidate } from '@/lib/types';
 import { BottomNav } from '@/components/bottom-nav';
 import {
@@ -282,6 +283,15 @@ export default function SwipePage() {
                     {candidate.compatibility}%
                   </span>
                 </div>
+
+                {/* Category badge (Clásico) */}
+                {getVehicleCategory(candidate.user.vehicle.year) === 'clasico' && (
+                  <div className="absolute top-14 right-3">
+                    <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-700 border border-amber-200">
+                      Clásico
+                    </span>
+                  </div>
+                )}
 
                 {/* Distance badge */}
                 <div className="absolute bottom-3 left-3">

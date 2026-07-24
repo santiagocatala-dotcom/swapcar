@@ -143,3 +143,14 @@ export const CITIES_BY_PROVINCE: Record<string, string[]> = {
   Mendoza: ['Mendoza', 'San Rafael', 'Godoy Cruz', 'Luján de Cuyo', 'Maipú', 'Guaymallén'],
   Tucumán: ['San Miguel de Tucumán', 'Concepción', 'Yerba Buena', 'Tafí Viejo', 'Aguilares'],
 };
+
+// ============================================================
+// Vehicle categories
+// ============================================================
+
+export type VehicleCategory = 'moderno' | 'clasico';
+
+export function getVehicleCategory(year: number | null | undefined): VehicleCategory {
+  if (year === null || year === undefined || year >= 1980) return 'moderno';
+  return 'clasico';
+}

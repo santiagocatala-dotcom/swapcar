@@ -96,7 +96,7 @@ export default function EditProfilePage() {
   const fetchedRef = useRef(false);
 
   const currentYear = new Date().getFullYear();
-  const years = Array.from({ length: currentYear - 1979 }, (_, i) => currentYear - i);
+  const years = Array.from({ length: currentYear - 1929 }, (_, i) => currentYear - i);
 
   const filteredBrands = BRANDS.filter((b) =>
     b.toLowerCase().includes(brandSearch.toLowerCase())
