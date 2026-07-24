@@ -1192,12 +1192,6 @@ export default function EditProfilePage() {
                   checked={onlyInPerson}
                   onChange={setOnlyInPerson}
                 />
-                <ToggleRow
-                  label="Me interesan vehículos clásicos"
-                  description="Anteriores a 1980"
-                  checked={preferredCategories.includes('clasico')}
-                  onChange={(v) => setPreferredCategories(v ? ['clasico'] : [])}
-                />
               </div>
             )}
 

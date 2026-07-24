@@ -286,11 +286,9 @@ export default function SwipePage() {
 
                 {/* Category badge (Clásico) */}
                 {getVehicleCategory(candidate.user.vehicle.year) === 'clasico' && (
-                  <div className="absolute top-14 right-3">
-                    <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-700 border border-amber-200">
-                      Clásico
-                    </span>
-                  </div>
+                  <span className="absolute top-16 right-3 inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-100 text-amber-600 border border-amber-200 leading-none">
+                    Clásico
+                  </span>
                 )}
 
                 {/* Distance badge */}
