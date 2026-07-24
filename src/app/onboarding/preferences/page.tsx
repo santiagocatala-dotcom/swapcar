@@ -46,6 +46,7 @@ export default function OnboardingPreferencesPage() {
   const [acceptCash, setAcceptCash] = useState(true);
   const [acceptFinancing, setAcceptFinancing] = useState(false);
   const [onlyInPerson, setOnlyInPerson] = useState(true);
+  const [preferredCategories, setPreferredCategories] = useState<string[]>([]);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -130,6 +131,7 @@ export default function OnboardingPreferencesPage() {
         fuel_types: fuelTypes,
         transmission_types: transmissionTypes,
         max_distance_km: maxDistanceKm,
+        preferred_categories: preferredCategories,
         min_value: minValue ? parseFloat(minValue) : null,
         max_value: maxValue ? parseFloat(maxValue) : null,
         max_difference_i_pay: maxDifferenceIPay ? parseFloat(maxDifferenceIPay) : null,
@@ -560,6 +562,12 @@ export default function OnboardingPreferencesPage() {
                   description="Solo intercambios en persona, sin envíos"
                   checked={onlyInPerson}
                   onChange={setOnlyInPerson}
+                />
+                <ToggleRow
+                  label="Me interesan vehículos clásicos"
+                  description="Anteriores a 1980"
+                  checked={preferredCategories.includes('clasico')}
+                  onChange={(v) => setPreferredCategories(v ? ['clasico'] : [])}
                 />
               </div>
             </div>

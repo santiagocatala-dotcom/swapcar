@@ -78,6 +78,7 @@ export default function EditProfilePage() {
   const [acceptCash, setAcceptCash] = useState(true);
   const [acceptFinancing, setAcceptFinancing] = useState(false);
   const [onlyInPerson, setOnlyInPerson] = useState(true);
+  const [preferredCategories, setPreferredCategories] = useState<string[]>([]);
 
   // UI state
   const [loading, setLoading] = useState(true);
@@ -171,6 +172,7 @@ export default function EditProfilePage() {
         setAcceptCash(prefsData.accept_cash ?? true);
         setAcceptFinancing(prefsData.accept_financing ?? false);
         setOnlyInPerson(prefsData.only_in_person ?? true);
+        setPreferredCategories(prefsData.preferred_categories || []);
       }
     } catch (err) {
       console.error('Error fetching data:', err);
@@ -308,6 +310,7 @@ export default function EditProfilePage() {
         accept_cash: acceptCash,
         accept_financing: acceptFinancing,
         only_in_person: onlyInPerson,
+        preferred_categories: preferredCategories,
       };
 
       if (existing) {
@@ -1145,6 +1148,12 @@ export default function EditProfilePage() {
                   label="Solo presencial"
                   checked={onlyInPerson}
                   onChange={setOnlyInPerson}
+                />
+                <ToggleRow
+                  label="Me interesan vehículos clásicos"
+                  description="Anteriores a 1980"
+                  checked={preferredCategories.includes('clasico')}
+                  onChange={(v) => setPreferredCategories(v ? ['clasico'] : [])}
                 />
               </div>
             )}
