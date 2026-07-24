@@ -11,6 +11,7 @@ import {
   TRANSMISSION_TYPES,
   MODELS_BY_BRAND,
 } from '@/lib/constants';
+import { VEHICLE_TYPE_ICONS } from '@/lib/vehicle-icons';
 import type { VehicleType, FuelType, Transmission } from '@/lib/types';
 import {
   ArrowLeft,
@@ -205,7 +206,10 @@ export default function OnboardingPreferencesPage() {
                         : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
                     }`}
                   >
-                    <span className="text-xl">{vt.icon}</span>
+                    {(() => {
+                      const Icon = VEHICLE_TYPE_ICONS[vt.value];
+                      return Icon ? <Icon className="w-5 h-5 shrink-0" /> : <span className="text-xl">{vt.icon}</span>;
+                    })()}
                     <span className="font-medium text-sm">{vt.label}</span>
                     {isSelected && (
                       <Check className="w-4 h-4 ml-auto shrink-0" />

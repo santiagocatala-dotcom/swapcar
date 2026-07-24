@@ -13,6 +13,7 @@ import {
   PROVINCES,
   CITIES_BY_PROVINCE,
 } from '@/lib/constants';
+import { VEHICLE_TYPE_ICONS } from '@/lib/vehicle-icons';
 import type { VehicleType, FuelType, Transmission, Vehicle, Preferences } from '@/lib/types';
 import {
   ArrowLeft,
@@ -868,7 +869,10 @@ export default function EditProfilePage() {
                           : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
                       }`}
                     >
-                      <span className="text-lg">{vt.icon}</span>
+                      {(() => {
+                        const Icon = VEHICLE_TYPE_ICONS[vt.value];
+                        return Icon ? <Icon className="w-4 h-4 shrink-0" /> : <span className="text-lg">{vt.icon}</span>;
+                      })()}
                       <span className="font-medium text-xs">{vt.label}</span>
                       {isSelected && <Check className="w-3.5 h-3.5 ml-auto shrink-0" />}
                     </button>

@@ -83,7 +83,7 @@ export const VEHICLE_TYPES = [
   { value: 'sedan', label: 'Sedán', icon: '🚗' },
   { value: 'hatchback', label: 'Hatchback', icon: '🚙' },
   { value: 'suv', label: 'SUV / Todoterreno', icon: '🛻' },
-  { value: 'pickup', label: 'Pick up', icon: '🛞' },
+  { value: 'pickup', label: 'Pick up', icon: '🛻' },
   { value: 'coupe', label: 'Coupé', icon: '🏎️' },
   { value: 'cabrio', label: 'Cabrio / Convertible', icon: '🚘' },
   { value: 'rural', label: 'Rural / Familiar', icon: '🚐' },
