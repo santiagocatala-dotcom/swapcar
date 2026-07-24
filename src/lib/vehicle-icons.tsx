@@ -1,11 +1,5 @@
 'use client';
 
-import { Gauge } from 'lucide-react';
-
-// ============================================================
-// Side-view vehicle SVG icons — each body type is clearly different
-// ============================================================
-
 export type VehicleTypeValue =
   | 'sedan' | 'hatchback' | 'suv' | 'pickup' | 'coupe'
   | 'cabrio' | 'rural' | 'furgon' | 'moto' | 'cuatriciclo';
@@ -16,150 +10,148 @@ export interface VehicleTypeOption {
   icon: any;
 }
 
-// Side view - three boxes (hood, cabin, trunk)
-function SedanIcon(props: any) {
+/* ── Base helper colors ── */
+const styles = { width: 28, height: 20, fill: 'currentColor' };
+
+/* ── Sedán ── */
+function SedanIcon(p: any) {
   return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" {...props}>
-      {/* Hood → windshield → roof → rear window → trunk */}
-      <path d="M2 16h2l1-2h2l1 2h12l-1-6H7L5 8H3l-1 4v4z" />
-      <path d="M7 14v3H5v-3" />
-      <path d="M17 14v3h2v-3" />
-      <circle cx="6.5" cy="17" r="1.5" fill="currentColor" />
-      <circle cx="17.5" cy="17" r="1.5" fill="currentColor" />
+    <svg viewBox="0 0 34 20" {...styles} {...p}>
+      <rect x="3" y="10" width="28" height="5" rx="1.5" />
+      <rect x="11" y="4" width="13" height="7" rx="1" />
+      <rect x="2" y="11" width="6" height="4" rx="1" />
+      <rect x="26" y="11" width="6" height="4" rx="1" />
+      <circle cx="5" cy="16" r="2.5" />
+      <circle cx="29" cy="16" r="2.5" />
     </svg>
   );
 }
 
-// Side view - two boxes (hood + cabin), steep hatch rear
-function HatchbackIcon(props: any) {
+/* ── Hatchback ── Cabina llega hasta atrás ── */
+function HatchbackIcon(p: any) {
   return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" {...props}>
-      <path d="M2 16h2l1-2 2-2h10l2 2 1 2h2l-2-7H7L5 9H3l-1 3v4z" />
-      <path d="M7 14v3H5v-3" />
-      <path d="M17 14v3h2v-3" />
-      <circle cx="6.5" cy="17" r="1.5" fill="currentColor" />
-      <circle cx="17.5" cy="17" r="1.5" fill="currentColor" />
+    <svg viewBox="0 0 34 20" {...styles} {...p}>
+      <rect x="3" y="10" width="28" height="5" rx="1.5" />
+      <rect x="11" y="4" width="14" height="7" rx="1" />
+      <rect x="2" y="11" width="6" height="4" rx="1" />
+      <rect x="26" y="11" width="6" height="4" rx="1" />
+      <circle cx="5" cy="16" r="2.5" />
+      <circle cx="29" cy="16" r="2.5" />
     </svg>
   );
 }
 
-// Side view - tall, boxy, high ground clearance
-function SUVIcon(props: any) {
+/* ── SUV ── Más alto, despeje del suelo ── */
+function SUVIcon(p: any) {
   return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" {...props}>
-      <path d="M1 15h2l1-2h2l4 2h8l-1-5H8L6 8H3L1 11v4z" />
-      <path d="M6 13v4H4v-4" />
-      <path d="M18 13v4h2v-4" />
-      <path d="M10 11h6l1 2" />
-      <circle cx="7" cy="17" r="1.5" fill="currentColor" />
-      <circle cx="17" cy="17" r="1.5" fill="currentColor" />
+    <svg viewBox="0 0 34 20" {...styles} {...p}>
+      <rect x="3" y="8" width="28" height="6" rx="1.5" />
+      <rect x="11" y="2" width="13" height="7" rx="1" />
+      <rect x="2" y="10" width="6" height="5" rx="1" />
+      <rect x="26" y="10" width="6" height="5" rx="1" />
+      <circle cx="5" cy="16" r="2.5" />
+      <circle cx="29" cy="16" r="2.5" />
+      <rect x="6" y="14" width="2" height="2" />
+      <rect x="26" y="14" width="2" height="2" />
     </svg>
   );
 }
 
-// Side view - cabin + open flat bed
-function PickupIcon(props: any) {
+/* ── Pick up ── Cabina + cama atrás ── */
+function PickupIcon(p: any) {
   return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" {...props}>
-      <path d="M2 15h2l1-2h5l3 2h7l-2-5H9L7 8H3L1 11v4z" />
-      <path d="M7 13v4H5v-4" />
-      <path d="M17 13v4h2v-4" />
-      {/* Flat bed */}
-      <path d="M10 15v-3h7" />
-      <circle cx="6.5" cy="17" r="1.5" fill="currentColor" />
-      <circle cx="17.5" cy="17" r="1.5" fill="currentColor" />
+    <svg viewBox="0 0 34 20" {...styles} {...p}>
+      <rect x="3" y="10" width="28" height="5" rx="1.5" />
+      <rect x="9" y="4" width="11" height="7" rx="1" />
+      <rect x="2" y="11" width="6" height="4" rx="1" />
+      <rect x="26" y="11" width="6" height="4" rx="1" />
+      <circle cx="5" cy="16" r="2.5" />
+      <circle cx="29" cy="16" r="2.5" />
+      <rect x="20" y="10" width="10" height="1" />
     </svg>
   );
 }
 
-// Side view - long hood, sloping roofline, short trunk
-function CoupeIcon(props: any) {
+/* ── Coupé ── Capó largo, cabina atrás ── */
+function CoupeIcon(p: any) {
   return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" {...props}>
-      <path d="M2 15h2l1-1 2-3h8l3 3 1 1h3l-3-8H6L4 7H2l-1 3v5z" />
-      <path d="M8 13v4H6v-4" />
-      <path d="M16 13v4h2v-4" />
-      <circle cx="7" cy="17" r="1.5" fill="currentColor" />
-      <circle cx="17" cy="17" r="1.5" fill="currentColor" />
+    <svg viewBox="0 0 34 20" {...styles} {...p}>
+      <rect x="3" y="10" width="28" height="5" rx="1.5" />
+      <rect x="16" y="5" width="10" height="6" rx="1" />
+      <rect x="2" y="11" width="6" height="4" rx="1" />
+      <rect x="26" y="11" width="6" height="4" rx="1" />
+      <circle cx="5" cy="16" r="2.5" />
+      <circle cx="29" cy="16" r="2.5" />
+      <path d="M12 10l5-5" stroke="currentColor" strokeWidth="1" />
     </svg>
   );
 }
 
-// Side view - no roof, windshield, two seats
-function CabrioIcon(props: any) {
+/* ── Cabrio ── Sin techo, solo parabrisas ── */
+function CabrioIcon(p: any) {
   return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" {...props}>
-      <path d="M2 16h2l1-2h12l1 2h2l-2-8H6L4 8H2l-1 4v4z" />
-      <path d="M6 14v3H4v-3" />
-      <path d="M16 14v3h2v-3" />
-      {/* Windshield */}
-      <path d="M6 12l2-3h6l2 3" />
-      <circle cx="5.5" cy="17" r="1.5" fill="currentColor" />
-      <circle cx="18.5" cy="17" r="1.5" fill="currentColor" />
+    <svg viewBox="0 0 34 20" {...styles} {...p}>
+      <rect x="3" y="10" width="28" height="5" rx="1.5" />
+      <rect x="12" y="6" width="8" height="5" rx="0.5" fill="none" stroke="currentColor" strokeWidth="1" />
+      <rect x="2" y="11" width="6" height="4" rx="1" />
+      <rect x="26" y="11" width="6" height="4" rx="1" />
+      <circle cx="5" cy="16" r="2.5" />
+      <circle cx="29" cy="16" r="2.5" />
     </svg>
   );
 }
 
-// Side view - long roofline, boxy rear (station wagon)
-function RuralIcon(props: any) {
+/* ── Rural ── Techo largo hasta el fondo ── */
+function RuralIcon(p: any) {
   return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" {...props}>
-      <path d="M1 16h2l1-2 3-2h10l3 2 1 2h1l-2-8H7L5 8H2L1 11v5z" />
-      <path d="M6 14v3H4v-3" />
-      <path d="M18 14v3h2v-3" />
-      {/* Long roof */}
-      <path d="M6 10h12" />
-      <circle cx="7" cy="17" r="1.5" fill="currentColor" />
-      <circle cx="17" cy="17" r="1.5" fill="currentColor" />
+    <svg viewBox="0 0 34 20" {...styles} {...p}>
+      <rect x="3" y="10" width="28" height="5" rx="1.5" />
+      <rect x="10" y="4" width="16" height="7" rx="1" />
+      <rect x="2" y="11" width="6" height="4" rx="1" />
+      <rect x="26" y="11" width="6" height="4" rx="1" />
+      <circle cx="5" cy="16" r="2.5" />
+      <circle cx="29" cy="16" r="2.5" />
     </svg>
   );
 }
 
-// Side view - tall box (delivery van)
-function FurgonIcon(props: any) {
+/* ── Furgón ── Caja alta, van ── */
+function FurgonIcon(p: any) {
   return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" {...props}>
-      <rect x="2" y="9" width="19" height="7" rx="1" />
-      <path d="M6 16v2H4v-2" />
-      <path d="M18 16v2h2v-2" />
-      {/* Tall cargo area */}
-      <path d="M9 9V6h5v3" />
-      <circle cx="7" cy="17" r="1.5" fill="currentColor" />
-      <circle cx="17" cy="17" r="1.5" fill="currentColor" />
+    <svg viewBox="0 0 34 20" {...styles} {...p}>
+      <rect x="3" y="6" width="28" height="9" rx="1" />
+      <rect x="2" y="11" width="6" height="4" rx="1" />
+      <rect x="26" y="11" width="6" height="4" rx="1" />
+      <circle cx="5" cy="16" r="2.5" />
+      <circle cx="29" cy="16" r="2.5" />
+      <rect x="8" y="6" width="2" height="4" />
     </svg>
   );
 }
 
-// Side view - two wheels, rider
-function MotoIcon(props: any) {
+/* ── Moto ── Dos ruedas, manubrio ── */
+function MotoIcon(p: any) {
   return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" {...props}>
-      <circle cx="6" cy="16" r="3" />
-      <circle cx="18" cy="16" r="3" />
-      <path d="M6 16l2-8h4" />
-      <path d="M18 16l-3-5h-3" />
-      <path d="M8 12h8" />
-      {/* Handlebars */}
-      <path d="M12 8h4l1 2" />
+    <svg viewBox="0 0 34 20" {...styles} {...p}>
+      <circle cx="7" cy="15" r="4" />
+      <circle cx="27" cy="15" r="4" />
+      <rect x="10" y="10" width="14" height="3" rx="1" />
+      <rect x="17" y="5" width="4" height="6" rx="0.5" />
+      <rect x="14" y="5" width="4" height="2" rx="0.5" />
+      <rect x="21" y="6" width="4" height="2" rx="0.5" />
     </svg>
   );
 }
 
-// Side view - four wheels, no roof, off-road
-function CuatriIcon(props: any) {
+/* ── Cuatriciclo ── 4 ruedas, abierto ── */
+function CuatriIcon(p: any) {
   return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" {...props}>
-      <rect x="4" y="10" width="16" height="5" rx="1" />
-      <path d="M7 15v1h2v-1" />
-      <path d="M15 15v1h2v-1" />
-      {/* Big chunky tires */}
-      <circle cx="7" cy="16" r="2.5" fill="none" />
-      <circle cx="17" cy="16" r="2.5" fill="none" />
-      {/* Handlebars */}
-      <path d="M6 10V8" />
-      <path d="M18 10V8" />
-      <circle cx="6" cy="8" r="0.8" fill="currentColor" />
-      <circle cx="18" cy="8" r="0.8" fill="currentColor" />
+    <svg viewBox="0 0 34 20" {...styles} {...p}>
+      <rect x="6" y="7" width="22" height="5" rx="1" />
+      <circle cx="8" cy="16" r="3" />
+      <circle cx="26" cy="16" r="3" />
+      <rect x="4" y="6" width="4" height="2" rx="0.5" />
+      <rect x="26" y="6" width="4" height="2" rx="0.5" />
     </svg>
   );
 }
