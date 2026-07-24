@@ -95,6 +95,12 @@ export async function getCandidates(
 
   const currentUser = buildUserWithVehicle(currentUserRaw as Record<string, unknown>);
 
+  // Current user must have vehicle + preferences (complete onboarding)
+  if (!currentUser.vehicle || !currentUser.preferences) {
+    console.warn('[getCandidates] Current user has incomplete profile');
+    return [];
+  }
+
   // Step 3: Fetch potential candidates
   // Exclude self + already-swiped users; require vehicle & preferences to exist.
   // We get users who have entries in both vehicles and preferences tables.
@@ -125,6 +131,10 @@ export async function getCandidates(
   for (const raw of candidatesRaw) {
     try {
       const otherUser = buildUserWithVehicle(raw as Record<string, unknown>);
+
+      // Skip users without vehicle or preferences (incomplete onboarding)
+      if (!otherUser.vehicle || !otherUser.preferences) continue;
+
       const { score, details, cashDifference } = calculateCompatibility(
         currentUser,
         otherUser,

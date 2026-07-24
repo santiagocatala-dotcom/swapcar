@@ -60,6 +60,8 @@ export default function EditProfilePage() {
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [savingAvatar, setSavingAvatar] = useState(false);
+  const [phone, setPhone] = useState('');
+  const [whatsapp, setWhatsapp] = useState('');
 
   // Preferences fields
   const [vehicleTypes, setVehicleTypes] = useState<VehicleType[]>([]);
@@ -128,6 +130,8 @@ export default function EditProfilePage() {
         setCity(userData.city || '');
         setProvince(userData.province || '');
         setAvatarUrl(userData.avatar_url || null);
+        setPhone(userData.phone || '');
+        setWhatsapp(userData.whatsapp || '');
       }
 
       // Vehicle
@@ -206,7 +210,7 @@ export default function EditProfilePage() {
     try {
       const { error: err } = await supabase
         .from('users')
-        .update({ name, city, province })
+        .update({ name, city, province, phone, whatsapp })
         .eq('id', user.id);
       if (err) throw err;
       showSuccess('Perfil actualizado');
@@ -547,6 +551,32 @@ export default function EditProfilePage() {
                   </option>
                 ))}
               </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                Teléfono <span className="text-gray-400">(opcional)</span>
+              </label>
+              <input
+                type="tel"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="Ej: +54 9 11 5555-5555"
+                className="w-full px-4 py-2.5 border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                WhatsApp <span className="text-gray-400">(opcional)</span>
+              </label>
+              <input
+                type="tel"
+                value={whatsapp}
+                onChange={(e) => setWhatsapp(e.target.value)}
+                placeholder="Ej: +54 9 11 5555-5555"
+                className="w-full px-4 py-2.5 border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
+              />
             </div>
 
             <button

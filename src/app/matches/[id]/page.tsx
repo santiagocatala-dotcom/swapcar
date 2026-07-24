@@ -138,20 +138,27 @@ export default function ChatPage({
 
   const sharePhone = async () => {
     if (!user) return;
-   await (supabase.from('messages') as any).insert({
+    const { data: u } = await supabase.from('users').select('phone').eq('id', user.id).single();
+    const phoneNum = u?.phone || 'No registrado';
+    await (supabase.from('messages') as any).insert({
       match_id: id,
       sender_id: user.id,
-      content: null,
+      content: `📞 ${phoneNum}`,
       phone_shared: true,
     });
   };
 
   const shareWhatsApp = async () => {
     if (!user) return;
-   await (supabase.from('messages') as any).insert({
+    const { data: u } = await supabase.from('users').select('whatsapp, phone').eq('id', user.id).single();
+    const wa = u?.whatsapp || u?.phone || '';
+    const msg = wa
+      ? `💬 WhatsApp: wa.me/${wa.replace(/[^0-9]/g, '')}`
+      : '💬 No tengo WhatsApp registrado';
+    await (supabase.from('messages') as any).insert({
       match_id: id,
       sender_id: user.id,
-      content: null,
+      content: msg,
       whatsapp_shared: true,
     });
   };
@@ -301,21 +308,21 @@ export default function ChatPage({
         <div className="flex items-center gap-2 mb-2">
           <button
             onClick={sharePhone}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 rounded-full text-xs text-gray-600 hover:bg-gray-50 transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-green-50 border border-green-200 rounded-full text-xs text-green-700 font-medium hover:bg-green-100 transition-colors"
           >
             <Phone className="w-3.5 h-3.5" />
             Teléfono
           </button>
           <button
             onClick={shareWhatsApp}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 rounded-full text-xs text-gray-600 hover:bg-gray-50 transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 border border-emerald-200 rounded-full text-xs text-emerald-700 font-medium hover:bg-emerald-100 transition-colors"
           >
             <MessageCircle className="w-3.5 h-3.5" />
             WhatsApp
           </button>
           <button
             onClick={shareLocation}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 rounded-full text-xs text-gray-600 hover:bg-gray-50 transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 border border-blue-200 rounded-full text-xs text-blue-700 font-medium hover:bg-blue-100 transition-colors"
           >
             <MapPin className="w-3.5 h-3.5" />
             Ubicación
