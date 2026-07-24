@@ -42,6 +42,8 @@ export default function OnboardingPreferencesPage() {
   const [maxValue, setMaxValue] = useState('');
   const [maxDifferenceIPay, setMaxDifferenceIPay] = useState('');
   const [maxDifferenceIReceive, setMaxDifferenceIReceive] = useState('');
+  const [minHp, setMinHp] = useState('');
+  const [maxHp, setMaxHp] = useState('');
   const [acceptMultipleVehicles, setAcceptMultipleVehicles] = useState(true);
   const [acceptCash, setAcceptCash] = useState(true);
   const [acceptFinancing, setAcceptFinancing] = useState(false);
@@ -132,6 +134,8 @@ export default function OnboardingPreferencesPage() {
         transmission_types: transmissionTypes,
         max_distance_km: maxDistanceKm,
         preferred_categories: preferredCategories,
+        min_hp: minHp ? parseInt(minHp) : null,
+        max_hp: maxHp ? parseInt(maxHp) : null,
         min_value: minValue ? parseFloat(minValue) : null,
         max_value: maxValue ? parseFloat(maxValue) : null,
         max_difference_i_pay: maxDifferenceIPay ? parseFloat(maxDifferenceIPay) : null,

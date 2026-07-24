@@ -35,6 +35,7 @@ export interface Vehicle {
   video_url: string | null;
   description: string | null;
   estimated_value: number | null;
+  horsepower: number | null;
   license_plate: string | null;
   vin: string | null;
   created_at: string;
@@ -59,6 +60,9 @@ export interface Preferences {
   accept_cash: boolean;
   accept_financing: boolean;
   only_in_person: boolean;
+  min_hp: number | null;
+  max_hp: number | null;
+  preferred_categories: string[];
 }
 
 export interface Swipe {

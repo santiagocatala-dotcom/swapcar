@@ -80,10 +80,16 @@ export const MODELS_BY_BRAND: Record<string, string[]> = {
 
 // Tipos de vehículo
 export const VEHICLE_TYPES = [
-  { value: 'auto', label: 'Auto', icon: '🚗' },
+  { value: 'sedan', label: 'Sedán', icon: '🚗' },
+  { value: 'hatchback', label: 'Hatchback', icon: '🚙' },
+  { value: 'suv', label: 'SUV / Todoterreno', icon: '🛻' },
+  { value: 'pickup', label: 'Pick up', icon: '🛞' },
+  { value: 'coupe', label: 'Coupé', icon: '🏎️' },
+  { value: 'cabrio', label: 'Cabrio / Convertible', icon: '🚘' },
+  { value: 'rural', label: 'Rural / Familiar', icon: '🚐' },
+  { value: 'furgon', label: 'Furgón / Utilitario', icon: '🚐' },
   { value: 'moto', label: 'Moto', icon: '🏍️' },
-  { value: 'camioneta', label: 'Camioneta', icon: '🛻' },
-  { value: 'cuatriciclo', label: 'Cuatriciclo', icon: '🏎️' },
+  { value: 'cuatriciclo', label: 'Cuatriciclo / ATV', icon: '🏎️' },
 ] as const;
 
 // Tipos de combustible

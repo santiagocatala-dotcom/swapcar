@@ -382,6 +382,11 @@ export default function SwipePage() {
                       {candidate.user.vehicle.transmission}
                     </span>
                   )}
+                  {candidate.user.vehicle.horsepower && (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded-full">
+                      {candidate.user.vehicle.horsepower} HP
+                    </span>
+                  )}
                 </div>
               </div>
             </motion.div>

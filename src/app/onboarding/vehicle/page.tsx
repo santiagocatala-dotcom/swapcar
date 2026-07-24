@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { useSupabase } from '@/components/SupabaseProvider';
 import { BRANDS, FUEL_TYPES, TRANSMISSION_TYPES } from '@/lib/constants';
-import { ArrowLeft, Camera, Loader2, Upload, X } from 'lucide-react';
+import { ArrowLeft, Camera, Loader2, Upload, X, DollarSign } from 'lucide-react';
 
 export default function OnboardingVehiclePage() {
   const { user } = useSupabase();
@@ -25,6 +25,7 @@ export default function OnboardingVehiclePage() {
   const [licensePlate, setLicensePlate] = useState('');
   const [vin, setVin] = useState('');
   const [videoUrl, setVideoUrl] = useState('');
+  const [horsepower, setHorsepower] = useState('');
   const [photos, setPhotos] = useState<File[]>([]);
   const [photoUrls, setPhotoUrls] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
@@ -97,6 +98,7 @@ export default function OnboardingVehiclePage() {
         license_plate: licensePlate || null,
         vin: vin || null,
         video_url: videoUrl || null,
+        horsepower: horsepower ? parseInt(horsepower) : null,
       });
 
       if (insertError) throw insertError;
@@ -330,19 +332,31 @@ export default function OnboardingVehiclePage() {
           {/* Estimated Value */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1.5">
-              Valor estimado (USD) <span className="text-red-500">*</span>
+              Valor estimado (USD)
             </label>
             <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-gray-400">$</span>
+              <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
               <input
                 type="number"
                 value={estimatedValue}
                 onChange={(e) => setEstimatedValue(e.target.value)}
                 placeholder="Ej: 15000"
-                required
-                className="w-full pl-8 pr-4 py-2.5 border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
+                className="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
               />
             </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">
+              Potencia (HP) <span className="text-gray-400">(opcional)</span>
+            </label>
+            <input
+              type="number"
+              value={horsepower}
+              onChange={(e) => setHorsepower(e.target.value)}
+              placeholder="Ej: 150"
+              className="w-full px-4 py-2.5 border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
+            />
           </div>
 
           {/* Description */}

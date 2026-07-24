@@ -51,6 +51,7 @@ export default function EditProfilePage() {
   const [transmission, setTransmission] = useState('');
   const [color, setColor] = useState('');
   const [estimatedValue, setEstimatedValue] = useState('');
+  const [horsepower, setHorsepower] = useState('');
 
   // Photo management
   const [existingPhotos, setExistingPhotos] = useState<string[]>([]);
@@ -81,6 +82,8 @@ export default function EditProfilePage() {
   const [acceptFinancing, setAcceptFinancing] = useState(false);
   const [onlyInPerson, setOnlyInPerson] = useState(true);
   const [preferredCategories, setPreferredCategories] = useState<string[]>([]);
+  const [minHp, setMinHp] = useState('');
+  const [maxHp, setMaxHp] = useState('');
 
   // UI state
   const [loading, setLoading] = useState(true);
@@ -150,6 +153,7 @@ export default function EditProfilePage() {
         setTransmission(vehicleData.transmission || '');
         setColor(vehicleData.color || '');
         setEstimatedValue(vehicleData.estimated_value?.toString() || '');
+        setHorsepower(vehicleData.horsepower?.toString() || '');
         setExistingPhotos(vehicleData.photos || []);
       }
 
@@ -177,6 +181,8 @@ export default function EditProfilePage() {
         setAcceptFinancing(prefsData.accept_financing ?? false);
         setOnlyInPerson(prefsData.only_in_person ?? true);
         setPreferredCategories(prefsData.preferred_categories || []);
+        setMinHp(prefsData.min_hp?.toString() || '');
+        setMaxHp(prefsData.max_hp?.toString() || '');
       }
     } catch (err) {
       console.error('Error fetching data:', err);
@@ -261,6 +267,7 @@ export default function EditProfilePage() {
         transmission: transmission || null,
         color: color || null,
         estimated_value: estimatedValue ? parseFloat(estimatedValue) : null,
+        horsepower: horsepower ? parseInt(horsepower) : null,
         photos: allPhotos,
       };
 
@@ -315,6 +322,8 @@ export default function EditProfilePage() {
         accept_financing: acceptFinancing,
         only_in_person: onlyInPerson,
         preferred_categories: preferredCategories,
+        min_hp: minHp ? parseInt(minHp) : null,
+        max_hp: maxHp ? parseInt(maxHp) : null,
       };
 
       if (existing) {
