@@ -135,23 +135,36 @@ export async function getCandidates(
       // Skip users without vehicle or preferences (incomplete onboarding)
       if (!otherUser.vehicle || !otherUser.preferences) continue;
 
-      const { score, details, cashDifference } = calculateCompatibility(
-        currentUser,
-        otherUser,
-        currentUser.preferences,
-        otherUser.preferences,
-      );
+      // Get ALL vehicles for this user (they may have multiple)
+      const { data: userVehicles } = await supabase
+        .from('vehicles')
+        .select('*')
+        .eq('user_id', otherUser.id);
 
-      // Skip very low scores — they're not viable candidates
-      if (score < 10) continue;
+      const vehicleList = userVehicles || [otherUser.vehicle];
 
-      candidates.push({
-        user: otherUser,
-        compatibility: score,
-        compatibilityDetails: details,
-        cashDifference,
-        distance: 0, // calculated below
-      });
+      for (const v of vehicleList) {
+        // Create a candidate for each vehicle
+        const candidateUser = { ...otherUser, vehicle: v };
+
+        const { score, details, cashDifference } = calculateCompatibility(
+          currentUser,
+          candidateUser,
+          currentUser.preferences,
+          otherUser.preferences,
+        );
+
+        // Skip very low scores
+        if (score < 10) continue;
+
+        candidates.push({
+          user: candidateUser,
+          compatibility: score,
+          compatibilityDetails: details,
+          cashDifference,
+          distance: 0, // calculated below
+        });
+      }
     } catch {
       // Skip malformed rows
       continue;

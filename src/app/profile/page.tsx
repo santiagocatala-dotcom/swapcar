@@ -35,7 +35,7 @@ export default function ProfilePage() {
     province: string | null;
     last_seen: string;
   } | null>(null);
-  const [vehicle, setVehicle] = useState<Vehicle | null>(null);
+  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [preferences, setPreferences] = useState<Preferences | null>(null);
   const [stats, setStats] = useState<UserStats | null>(null);
   const [loading, setLoading] = useState(true);
@@ -73,14 +73,14 @@ export default function ProfilePage() {
         return;
       }
 
-      // Vehicle
-      const { data: vehicleData } = await supabase
+      // Vehicles
+      const { data: vehiclesData } = await supabase
         .from('vehicles')
         .select('*')
         .eq('user_id', user.id)
-        .maybeSingle();
+        .order('created_at', { ascending: false });
 
-      if (vehicleData) setVehicle(vehicleData);
+      if (vehiclesData) setVehicles(vehiclesData);
 
       // Preferences
       const { data: prefsData } = await supabase
@@ -148,7 +148,7 @@ export default function ProfilePage() {
 
   if (!profile) return null;
 
-  const vehiclePhoto = vehicle?.photos?.[0] || null;
+  const vehiclePhoto = vehicles.length > 0 ? vehicles[0].photos?.[0] || null : null;
   const lastSeen = profile.last_seen
     ? new Date(profile.last_seen)
     : null;
@@ -221,54 +221,64 @@ export default function ProfilePage() {
           </div>
         )}
 
-        {/* Current Vehicle */}
+        {/* My Vehicles */}
         <div className="mb-6">
           <div className="flex items-center justify-between mb-3">
-            <h2 className="font-semibold text-gray-900">Mi vehículo</h2>
+            <h2 className="font-semibold text-gray-900">
+              Mis vehículos {vehicles.length > 0 ? `(${vehicles.length})` : ''}
+            </h2>
             <Link
-              href="/profile/edit"
+              href="/onboarding/vehicle"
               className="text-xs text-blue-500 hover:text-blue-600 transition-colors"
             >
-              Editar
+              + Agregar
             </Link>
           </div>
-          <div className="bg-white rounded-2xl border border-gray-100 p-4">
-            {vehicle ? (
-              <div className="flex items-center gap-4">
-                <div className="w-16 h-16 rounded-xl overflow-hidden bg-gray-100 shrink-0">
-                  {vehiclePhoto ? (
-                    <img
-                      src={vehiclePhoto}
-                      alt={`${vehicle.brand} ${vehicle.model}`}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <Car className="w-6 h-6 text-gray-300" />
+          {vehicles.length > 0 ? (
+            <div className="space-y-3">
+              {vehicles.map((v) => {
+                const photo = v.photos?.[0] || null;
+                return (
+                  <Link
+                    key={v.id}
+                    href={`/profile/edit`}
+                    className="block bg-white rounded-2xl border border-gray-100 p-4 hover:shadow-sm transition-shadow"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="w-16 h-16 rounded-xl overflow-hidden bg-gray-100 shrink-0">
+                        {photo ? (
+                          <img src={photo} alt={`${v.brand} ${v.model}`} className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <Car className="w-6 h-6 text-gray-300" />
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-medium text-gray-900">
+                          {v.brand} {v.model}
+                        </h3>
+                        <p className="text-sm text-gray-400">
+                          {v.year}
+                          {v.kilometers != null ? ` · ${v.kilometers.toLocaleString()} km` : ''}
+                        </p>
+                        {v.estimated_value && (
+                          <p className="text-sm font-semibold text-gray-900 mt-0.5">
+                            ${v.estimated_value.toLocaleString()} USD
+                          </p>
+                        )}
+                      </div>
+                      <ChevronRight className="w-4 h-4 text-gray-300 shrink-0" />
                     </div>
-                  )}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-medium text-gray-900">
-                    {vehicle.brand} {vehicle.model}
-                  </h3>
-                  <p className="text-sm text-gray-400">
-                    {vehicle.year}
-                    {vehicle.kilometers != null
-                      ? ` · ${vehicle.kilometers.toLocaleString()} km`
-                      : ''}
-                  </p>
-                  {vehicle.estimated_value && (
-                    <p className="text-sm font-semibold text-gray-900 mt-0.5">
-                      ${vehicle.estimated_value.toLocaleString()} USD
-                    </p>
-                  )}
-                </div>
-              </div>
-            ) : (
+                  </Link>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="bg-white rounded-2xl border border-gray-100 p-4">
               <div className="text-center py-4">
                 <p className="text-sm text-gray-400 mb-2">
-                  No registraste un vehículo todavía
+                  No registraste vehículos todavía
                 </p>
                 <Link
                   href="/onboarding/vehicle"
@@ -277,8 +287,8 @@ export default function ProfilePage() {
                   Agregar vehículo
                 </Link>
               </div>
-            )}
-          </div>
+            </div>
+          )}
         </div>
 
         {/* Preferences Summary */}
