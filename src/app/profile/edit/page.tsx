@@ -1160,6 +1160,32 @@ export default function EditProfilePage() {
 
             {showAdvanced && (
               <div className="space-y-4 animate-fade-in">
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                      HP mínimo
+                    </label>
+                    <input
+                      type="number"
+                      value={minHp}
+                      onChange={(e) => setMinHp(e.target.value)}
+                      placeholder="100"
+                      className="w-full px-4 py-2.5 border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                      HP máximo
+                    </label>
+                    <input
+                      type="number"
+                      value={maxHp}
+                      onChange={(e) => setMaxHp(e.target.value)}
+                      placeholder="500"
+                      className="w-full px-4 py-2.5 border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
+                    />
+                  </div>
+                </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">
                     Diferencia máxima que podés poner (USD)
