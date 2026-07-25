@@ -781,6 +781,20 @@ export default function EditProfilePage() {
               </div>
             </div>
 
+            {/* HP */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                Potencia (HP) <span className="text-gray-400">(opcional)</span>
+              </label>
+              <input
+                type="number"
+                value={horsepower}
+                onChange={(e) => setHorsepower(e.target.value)}
+                placeholder="Ej: 150"
+                className="w-full px-4 py-2.5 border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
+              />
+            </div>
+
             <button
               onClick={saveVehicle}
               disabled={savingVehicle || !brand || !model}
