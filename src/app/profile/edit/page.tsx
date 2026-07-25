@@ -1013,14 +1013,14 @@ export default function EditProfilePage() {
               </label>
               <input
                 type="range"
-                min={1980}
+                min={1900}
                 max={currentYear}
                 value={minYear}
                 onChange={(e) => setMinYear(parseInt(e.target.value))}
                 className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-black"
               />
               <div className="flex justify-between text-xs text-gray-400 mt-1">
-                <span>1980</span>
+                <span>1900</span>
                 <span>{currentYear}</span>
               </div>
             </div>
