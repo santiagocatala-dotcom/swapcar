@@ -153,7 +153,7 @@ export default function ChatPage({
     const { data: u } = await supabase.from('users').select('whatsapp, phone').eq('id', user.id).single();
     const wa = u?.whatsapp || u?.phone || '';
     const msg = wa
-      ? `💬 WhatsApp: wa.me/${wa.replace(/[^0-9]/g, '')}`
+      ? `💬 WhatsApp: https://wa.me/${wa.replace(/[^0-9]/g, '')}`
       : '💬 No tengo WhatsApp registrado';
     await (supabase.from('messages') as any).insert({
       match_id: id,
