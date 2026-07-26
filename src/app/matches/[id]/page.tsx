@@ -118,11 +118,28 @@ export default function ChatPage({
     if (!content.trim() || !user || sending) return;
     setSending(true);
     try {
-      await (supabase.from('messages') as any).insert({
+      const { data: newMsg } = await (supabase.from('messages') as any).insert({
         match_id: id,
         sender_id: user.id,
         content: content.trim(),
-      });
+      }).select().single();
+
+      if (newMsg) {
+        setMessages((prev) => [...prev, newMsg]);
+      } else {
+        // Fallback: add optimistic message
+        setMessages((prev) => [...prev, {
+          id: `opt-${Date.now()}`,
+          match_id: id,
+          sender_id: user.id,
+          content: content.trim(),
+          image_url: null,
+          location: null,
+          phone_shared: false,
+          whatsapp_shared: false,
+          created_at: new Date().toISOString(),
+        } as unknown as Message]);
+      }
       setInput('');
     } catch (err) {
       console.error('Error sending message:', err);
@@ -140,12 +157,13 @@ export default function ChatPage({
     if (!user) return;
     const { data: u } = await supabase.from('users').select('phone').eq('id', user.id).single();
     const phoneNum = u?.phone || 'No registrado';
-    await (supabase.from('messages') as any).insert({
+    const { data: newMsg } = await (supabase.from('messages') as any).insert({
       match_id: id,
       sender_id: user.id,
       content: `📞 ${phoneNum}`,
       phone_shared: true,
-    });
+    }).select().single();
+    if (newMsg) setMessages((prev) => [...prev, newMsg]);
   };
 
   const shareWhatsApp = async () => {
@@ -155,24 +173,27 @@ export default function ChatPage({
     const msg = wa
       ? `💬 WhatsApp: https://wa.me/${wa.replace(/[^0-9]/g, '')}`
       : '💬 No tengo WhatsApp registrado';
-    await (supabase.from('messages') as any).insert({
+    const { data: newMsg } = await (supabase.from('messages') as any).insert({
       match_id: id,
       sender_id: user.id,
       content: msg,
       whatsapp_shared: true,
-    });
+    }).select().single();
+    if (newMsg) setMessages((prev) => [...prev, newMsg]);
   };
 
   const shareLocation = async () => {
     if (!navigator.geolocation) return;
     navigator.geolocation.getCurrentPosition(async (pos) => {
       const { latitude, longitude } = pos.coords;
-     await (supabase.from('messages') as any).insert({
+      const locMsg = `📍 https://www.google.com/maps?q=${latitude},${longitude}`;
+      const { data: newMsg } = await (supabase.from('messages') as any).insert({
         match_id: id,
         sender_id: user!.id,
-        content: null,
-        location: { lat: latitude, lng: longitude },
-      });
+        content: locMsg,
+        location: pos.coords as any,
+      }).select().single();
+      if (newMsg) setMessages((prev) => [...prev, newMsg]);
     });
   };
 

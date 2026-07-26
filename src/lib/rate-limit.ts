@@ -36,7 +36,7 @@ export async function checkRateLimit(
     });
     if (error) {
       console.warn(`[rateLimit] RPC error: ${error.message}`);
-      return { allowed: true }; // fail open if RPC fails
+      return { allowed: false, message: `Error de verificación. Intentá de nuevo.` }; // fail closed
     }
     if (data === false) {
       return { allowed: false, message: `Demasiadas solicitudes. Esperá unos minutos.` };

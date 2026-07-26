@@ -65,6 +65,25 @@ export default function LoginPage() {
     }
   };
 
+  const handleForgotPassword = async () => {
+    if (!email) {
+      setError('Primero ingresá tu email');
+      return;
+    }
+    setError('');
+    setLoading(true);
+    const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/auth/callback`,
+    });
+    setLoading(false);
+    if (resetError) {
+      setError(resetError.message);
+    } else {
+      setError('');
+      alert('Te enviamos un link para restablecer tu contraseña. Revisá tu email.');
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-6 py-12">
       <div className="w-full max-w-sm animate-fade-in-up">
@@ -128,6 +147,17 @@ export default function LoginPage() {
                 className="w-full pl-10 pr-4 py-2.5 border border-border rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm"
               />
             </div>
+          </div>
+
+          <div className="text-right mb-4">
+            <button
+              type="button"
+              onClick={handleForgotPassword}
+              disabled={loading}
+              className="text-xs text-primary hover:underline disabled:opacity-50"
+            >
+              ¿Olvidaste tu contraseña?
+            </button>
           </div>
 
           <button

@@ -18,7 +18,10 @@ export function BottomNav() {
   if (
     pathname.startsWith('/auth') ||
     pathname.startsWith('/onboarding') ||
-    pathname === '/'
+    pathname === '/' ||
+    pathname === '/terms' ||
+    pathname === '/privacy' ||
+    pathname === '/setup'
   ) {
     return null;
   }

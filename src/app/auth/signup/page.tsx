@@ -20,6 +20,10 @@ export default function SignupPage() {
     e.preventDefault();
     setError('');
 
+    if (name.trim().length < 2) {
+      setError('El nombre debe tener al menos 2 caracteres');
+      return;
+    }
     if (password.length < 6) {
       setError('La contraseña debe tener al menos 6 caracteres');
       return;
