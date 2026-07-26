@@ -81,7 +81,7 @@ export default function ChatPage({
     }
   }, [user, authLoading, router, fetchData]);
 
-  // Subscribe to Realtime
+  // Subscribe to Realtime + polling fallback
   useEffect(() => {
     const channel = supabase
       .channel(`messages:${id}`)
@@ -96,7 +96,6 @@ export default function ChatPage({
         (payload: { new: Record<string, unknown> }) => {
           const newMsg = payload.new as unknown as Message;
           setMessages((prev) => {
-            // Avoid duplicates
             if (prev.some((m) => m.id === newMsg.id)) return prev;
             return [...prev, newMsg];
           });
@@ -104,8 +103,30 @@ export default function ChatPage({
       )
       .subscribe();
 
+    // Polling fallback (every 5s) — ensures messages from other user appear
+    const pollInterval = setInterval(async () => {
+      const { data: newMsgs } = await supabase
+        .from('messages')
+        .select('*')
+        .eq('match_id', id)
+        .order('created_at', { ascending: false })
+        .limit(20);
+
+      if (newMsgs) {
+        setMessages((prev) => {
+          const existingIds = new Set(prev.map((m) => m.id));
+          const fresh = (newMsgs as Message[])
+            .filter((m) => !existingIds.has(m.id))
+            .reverse();
+          if (fresh.length === 0) return prev;
+          return [...prev, ...fresh];
+        });
+      }
+    }, 5000);
+
     return () => {
       supabase.removeChannel(channel);
+      clearInterval(pollInterval);
     };
   }, [supabase, id]);
 

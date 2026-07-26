@@ -355,6 +355,7 @@ export default function OnboardingVehiclePage() {
               value={horsepower}
               onChange={(e) => setHorsepower(e.target.value)}
               placeholder="Ej: 150"
+              inputMode="numeric"
               className="w-full px-4 py-2.5 border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
             />
           </div>

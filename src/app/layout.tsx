@@ -12,13 +12,13 @@ const inter = Inter({
 const SITE_URL = 'https://swapcar-vviu.vercel.app';
 
 export const metadata: Metadata = {
-  title: 'SwapCar - Intercambio de Vehículos',
+  title: 'Rev - Intercambio de Vehículos',
   description: 'App para intercambiar vehículos.',
   openGraph: {
-    title: 'SwapCar',
+    title: 'Rev',
     description: 'App para intercambiar vehículos.',
     url: SITE_URL,
-    siteName: 'SwapCar',
+    siteName: 'Rev',
     images: [{ url: `${SITE_URL}/og-image.svg`, width: 1200, height: 630 }],
     locale: 'es_AR',
     type: 'website',

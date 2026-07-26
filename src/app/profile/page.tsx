@@ -115,6 +115,7 @@ export default function ProfilePage() {
   }, [user, authLoading, router, fetchData]);
 
   const handleLogout = async () => {
+    if (!window.confirm('¿Estás seguro que querés cerrar sesión?')) return;
     await signOut();
   };
 
