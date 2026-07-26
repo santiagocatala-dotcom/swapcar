@@ -15,7 +15,7 @@ export default function PrivacyPage() {
           <p><strong>Última actualización:</strong> Julio 2026</p>
 
           <h2 className="text-lg font-semibold text-gray-900 mt-6">1. Datos que recopilamos</h2>
-          <p>Recopilamos la siguiente información cuando usás SwapCar:</p>
+          <p>Recopilamos la siguiente información cuando usás REVE:</p>
           <ul className="list-disc pl-5">
             <li><strong>Registro:</strong> nombre, email, contraseña (encriptada por Supabase Auth)</li>
             <li><strong>Perfil:</strong> provincia, ciudad</li>

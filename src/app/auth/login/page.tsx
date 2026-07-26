@@ -108,7 +108,7 @@ export default function LoginPage() {
 
         <div className="flex items-center gap-2 mb-8">
           <Car className="w-8 h-8 text-primary" />
-          <span className="text-2xl font-bold">Rev</span>
+          <span className="text-2xl font-bold">REVE</span>
         </div>
 
         <h1 className="text-2xl font-bold mb-1">Iniciar sesión</h1>

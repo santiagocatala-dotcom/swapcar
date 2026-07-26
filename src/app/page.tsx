@@ -32,7 +32,7 @@ export default function HomePage() {
       <header className="flex items-center justify-between px-6 py-4 max-w-6xl mx-auto w-full">
         <div className="flex items-center gap-2">
           <Car className="w-7 h-7 text-primary" />
-          <span className="text-xl font-bold tracking-tight">Rev</span>
+          <span className="text-xl font-bold tracking-tight">REVE</span>
         </div>
         <div className="flex items-center gap-3">
           <Link
@@ -122,7 +122,7 @@ export default function HomePage() {
 
       {/* Footer */}
       <footer className="py-6 px-6 text-center text-sm text-text-muted border-t border-border">
-        <p>&copy; {new Date().getFullYear()} Rev. Todos los derechos reservados.</p>
+        <p>&copy; {new Date().getFullYear()} REVE. Todos los derechos reservados.</p>
         <div className="flex justify-center gap-4 mt-2">
           <Link href="/terms" className="hover:text-text transition-colors">Términos</Link>
           <Link href="/privacy" className="hover:text-text transition-colors">Privacidad</Link>
