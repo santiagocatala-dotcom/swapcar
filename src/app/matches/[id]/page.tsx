@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback, use } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
+import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import { useSupabase } from '@/components/SupabaseProvider';
 import { getMatches } from '@/lib/matching';
@@ -254,28 +255,32 @@ export default function ChatPage({
           >
             <ArrowLeft className="w-5 h-5 text-gray-600" />
           </button>
-          <div className="w-9 h-9 rounded-full overflow-hidden bg-gray-100 shrink-0">
-            {photo ? (
-              <img
-                src={photo}
-                alt=""
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center">
-                <Heart className="w-4 h-4 text-gray-300" />
-              </div>
-            )}
-          </div>
-          <div className="flex-1 min-w-0">
-            <h2 className="font-semibold text-sm text-gray-900 truncate">
-              {otherUser.name}
-            </h2>
-            <p className="text-xs text-gray-400 truncate">
-              {otherVehicle?.brand} {otherVehicle?.model}
-              {otherVehicle?.year ? ` · ${otherVehicle.year}` : ''}
-            </p>
-          </div>
+          <Link
+            href={`/profile/${otherUser.id}`}
+            className="flex items-center gap-2 flex-1 min-w-0"
+          >
+            <div className="w-9 h-9 rounded-full overflow-hidden bg-gray-100 shrink-0">
+              {photo ? (
+                <img
+                  src={photo}
+                  alt=""
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center">
+                  <Heart className="w-4 h-4 text-gray-300" />
+                </div>
+              )}
+            </div>
+            <div className="min-w-0">
+              <h2 className="font-semibold text-sm text-gray-900 truncate">
+                {otherUser.name}
+              </h2>
+              <p className="text-xs text-gray-400 truncate">
+                {otherUser.vehicle?.brand} {otherUser.vehicle?.model}
+              </p>
+            </div>
+          </Link>
         </div>
       </header>
 
