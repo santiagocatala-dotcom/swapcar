@@ -9,7 +9,7 @@ const inter = Inter({
   variable: '--font-inter',
 });
 
-const SITE_URL = 'https://swapcar-vviu.vercel.app';
+const SITE_URL = 'https://reve.autos';
 
 export const metadata: Metadata = {
   title: 'REVE - Intercambio de Vehículos',
