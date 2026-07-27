@@ -9,9 +9,6 @@
   "background_color": "#ffffff",
   "theme_color": "#0f172a",
   "orientation": "portrait",
-  "ios": {
-    "apple-touch-icon": "/icon.svg"
-  },
   "icons": [
     {
       "src": "/icon.svg",
