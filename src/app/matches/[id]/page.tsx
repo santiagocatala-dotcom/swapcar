@@ -247,7 +247,9 @@ export default function ChatPage({
       {/* Header */}
       <header className="sticky top-0 z-10 bg-white border-b border-gray-100">
         <div className="max-w-lg mx-auto flex items-center gap-2 px-4 h-14">
-          <div className="w-6 h-6 bg-black rounded flex items-center justify-center text-white font-bold text-[8px]">R</div>
+          <div className="w-6 h-6 shrink-0">
+            <img src="/logo.png" alt="REVE" className="w-full h-full object-contain" />
+          </div>
           <span className="font-bold text-xs text-gray-900 mr-2">REVE</span>
           <button
             onClick={() => router.push('/matches')}
