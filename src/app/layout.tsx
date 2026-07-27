@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 import SupabaseProvider from '@/components/SupabaseProvider';
 import { BottomNav } from '@/components/bottom-nav';
+import { InstallPWA } from '@/components/InstallPWA';
 import './globals.css';
 
 const inter = Inter({
@@ -61,6 +62,7 @@ export default function RootLayout({
         <SupabaseProvider>
           <main className="flex-1 pb-20">{children}</main>
           <BottomNav />
+          <InstallPWA />
         </SupabaseProvider>
         <script
           dangerouslySetInnerHTML={{
