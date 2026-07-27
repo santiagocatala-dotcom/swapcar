@@ -159,7 +159,14 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
-      <div className="flex-1 max-w-lg mx-auto w-full px-4 pt-8 pb-24">
+      {/* App header */}
+      <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-lg border-b border-gray-100 px-4 py-3">
+        <div className="max-w-lg mx-auto flex items-center gap-2">
+          <div className="w-7 h-7 bg-black rounded-lg flex items-center justify-center text-white font-bold text-[10px]">R</div>
+          <span className="font-bold text-sm text-gray-900">REVE</span>
+        </div>
+      </header>
+      <div className="flex-1 max-w-lg mx-auto w-full px-4 pt-4 pb-24">
         {/* Profile Header */}
         <div className="flex items-center gap-4 mb-8">
           <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-100 shrink-0">

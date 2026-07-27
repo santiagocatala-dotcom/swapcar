@@ -245,7 +245,9 @@ export default function ChatPage({
     <div className="min-h-screen bg-gray-50 flex flex-col">
       {/* Header */}
       <header className="sticky top-0 z-10 bg-white border-b border-gray-100">
-        <div className="max-w-lg mx-auto flex items-center gap-3 px-4 h-14">
+        <div className="max-w-lg mx-auto flex items-center gap-2 px-4 h-14">
+          <div className="w-6 h-6 bg-black rounded flex items-center justify-center text-white font-bold text-[8px]">R</div>
+          <span className="font-bold text-xs text-gray-900 mr-2">REVE</span>
           <button
             onClick={() => router.push('/matches')}
             className="p-1 -ml-1 rounded-lg hover:bg-gray-100 transition-colors"
