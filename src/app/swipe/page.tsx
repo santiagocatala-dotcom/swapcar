@@ -193,8 +193,8 @@ export default function SwipePage() {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       {/* App header */}
-      <header className="h-36 flex items-center justify-center px-4">
-        <div className="w-32 h-32">
+      <header className="h-16 flex items-center px-4">
+        <div className="w-10 h-10">
           <img src="/logo.png" alt="REVE" className="w-full h-full object-contain" />
         </div>
       </header>
