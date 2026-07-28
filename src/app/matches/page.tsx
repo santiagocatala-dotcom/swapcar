@@ -91,11 +91,11 @@ export default function MatchesPage() {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       {/* App header */}
-      <div className="fixed top-4 left-4 z-50">
+      <header className="h-36 flex items-center justify-center px-4">
         <div className="w-32 h-32">
-          <img src="/logo.png" alt="REVE" className="w-full h-full object-contain drop-shadow-lg" />
+          <img src="/logo.png" alt="REVE" className="w-full h-full object-contain" />
         </div>
-      </div>
+      </header>
       <div className="flex-1 max-w-lg mx-auto w-full px-4 pt-2 pb-24">
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-gray-900">Mis Matches</h1>
