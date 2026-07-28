@@ -193,12 +193,12 @@ export default function SwipePage() {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       {/* App header */}
-      <header className="sticky top-0 z-40 bg-white border-b border-gray-100 px-4 py-4">
-        <div className="max-w-lg mx-auto">
-          <div className="w-32 h-32"><img src="/logo.png" alt="REVE" className="w-full h-full object-contain" /></div>
+      <div className="px-4 pt-4">
+        <div className="w-32 h-32 mx-auto">
+          <img src="/logo.png" alt="REVE" className="w-full h-full object-contain" />
         </div>
-      </header>
-      <div className="flex-1 flex flex-col items-center justify-center px-4 pt-4 pb-24">
+      </div>
+      <div className="flex-1 flex flex-col items-center justify-center px-4 pb-24">
         {/* Card stack */}
         <div className="relative w-full max-w-sm aspect-[3/4] mb-6">
           <AnimatePresence>
